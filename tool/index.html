@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Device Signal Tool</title>
+<meta name="description" content="Companion web tool for Signal Management in Medical Device Vigilance: trend screen, disproportionality and registry O/E, time to failure, prioritization, risk-file update and decision record. Educational; runs in the browser and stores nothing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2317375E'/%3E%3Cpath d='M4 20h6l3-9 4 14 3-9h8' fill='none' stroke='%2367E8F9' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --navy:#17375E; --navy-2:#0F2744; --teal:#0E7490; --teal-dark:#0B5A70; --teal-tint:#E6F4F7;
+  --ink:#1B2430; --muted:#4A5566; --line:#C9D2DC; --bg:#F3F6F9; --card:#FFFFFF;
+  --err:#B42318; --err-bg:#FDECEA; --warn:#7A4100; --warn-bg:#FFF4E5; --ok:#1F6B3A; --ok-bg:#E8F5EC;
+  --acc:#D7F0DD; --alarp:#FCE9B8; --unacc:#F8D0CC;
+  --radius:10px; --gutter:16px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}
+a{color:var(--teal-dark)}
+a:hover{color:var(--navy)}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-9999px;top:0;background:#fff;color:var(--navy);padding:8px 12px;z-index:10}
+.skip:focus{left:8px;top:8px}
+header.site{background:linear-gradient(135deg,var(--navy-2),var(--navy) 60%,#15506F);color:#fff;padding:22px var(--gutter) 20px}
+header.site :focus-visible{outline-color:#fff}
+.wrap{max-width:1080px;margin:0 auto}
+header.site .kicker{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:#A5E3EF;margin:0 0 4px}
+header.site h1{margin:0;font-size:clamp(1.45rem,3.5vw,2rem);line-height:1.2}
+header.site p.sub{margin:6px 0 0;color:#DCE7F2}
+header.site a{color:#fff}
+.disclaimer{background:var(--warn-bg);border:1px solid #F0C98A;border-left:6px solid #B86E00;color:#4A2A00;border-radius:var(--radius);padding:12px 16px;margin:18px 0 8px}
+.disclaimer strong{color:#4A2A00}
+nav.modules{position:sticky;top:0;z-index:5;background:rgba(243,246,249,.96);backdrop-filter:blur(4px);border-bottom:1px solid var(--line);padding:8px var(--gutter)}
+nav.modules ul{list-style:none;margin:0 auto;padding:0;display:flex;gap:6px;flex-wrap:wrap;max-width:1080px}
+nav.modules a{display:inline-block;padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--navy);background:#fff;border:1px solid var(--line);font-size:.9rem;font-weight:600}
+nav.modules a:hover{border-color:var(--teal);color:var(--teal-dark)}
+main{padding:0 var(--gutter) 40px}
+section.module{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--teal);border-radius:var(--radius);padding:20px;margin:22px 0;scroll-margin-top:64px}
+section.module h2{margin:0;color:var(--navy);font-size:1.35rem}
+section.module h3{color:var(--navy);font-size:1.08rem;margin:22px 0 6px}
+.chap{display:inline-block;background:var(--teal-tint);color:var(--teal-dark);font-weight:700;font-size:.78rem;border-radius:999px;padding:2px 10px;margin:0 0 6px}
+.lead{color:var(--muted);margin:6px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 16px}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field.wide{grid-column:1/-1}
+label,.lbl{font-weight:600;font-size:.94rem}
+.hint{color:var(--muted);font-size:.84rem}
+input[type=text],input[type=number],textarea,select{font:inherit;color:var(--ink);background:#fff;border:1px solid #8A97A8;border-radius:6px;padding:8px 10px;width:100%;min-height:40px}
+textarea{min-height:64px;resize:vertical}
+input[aria-invalid=true],textarea[aria-invalid=true],select[aria-invalid=true],fieldset[aria-invalid=true]{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0;min-width:0}
+legend{font-weight:700;color:var(--navy);padding:0 4px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
+button{font:inherit;font-weight:600;border-radius:6px;padding:9px 14px;min-height:40px;cursor:pointer;border:1px solid transparent}
+button.primary{background:var(--teal);color:#fff}
+button.primary:hover{background:var(--teal-dark)}
+button.secondary{background:#fff;color:var(--navy);border-color:var(--navy)}
+button.secondary:hover{background:#EEF3F8}
+button.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+button.ghost:hover{color:var(--ink);border-color:#8A97A8}
+button:disabled{opacity:.5;cursor:not-allowed}
+.errors{background:var(--err-bg);border:1px solid #F1A9A1;border-left:6px solid var(--err);color:#7A1A12;border-radius:8px;padding:10px 14px;margin:12px 0}
+.errors:empty{display:none}
+.errors h4{margin:0 0 4px;font-size:.98rem}
+.errors ul{margin:0;padding-left:20px}
+.notice{border-radius:8px;padding:10px 14px;margin:10px 0}
+.notice.info{background:var(--teal-tint);border-left:5px solid var(--teal);color:#0A3D4C}
+.notice.warn{background:var(--warn-bg);border-left:5px solid #B86E00;color:var(--warn)}
+.notice.good{background:var(--ok-bg);border-left:5px solid var(--ok);color:var(--ok)}
+.notice.bad{background:var(--err-bg);border-left:5px solid var(--err);color:#7A1A12}
+.results:empty{display:none}
+.results{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:8px 0 12px}
+.kpi{background:#F7FAFC;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.kpi .k{font-size:.8rem;color:var(--muted);font-weight:600}
+.kpi .v{font-size:1.25rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+.kpi .s{font-size:.84rem;color:var(--muted)}
+.tablewrap{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{padding:7px 9px;border-bottom:1px solid #E3E8EE;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.l,th.l{text-align:left;white-space:normal;min-width:180px}
+thead th{background:#EDF2F7;color:var(--navy);font-weight:700}
+tr.flag2 td{background:#FFF7E6}
+tr.flag3 td{background:#FDECEA}
+.tag{display:inline-block;border-radius:4px;padding:1px 6px;font-size:.8rem;font-weight:700;margin:1px 2px 1px 0}
+.tag.t2{background:#FCE9B8;color:#5C3A00}
+.tag.t3{background:#F8D0CC;color:#7A1A12}
+.tag.tr{background:#E1D9F2;color:#3D2A6B}
+.tag.tc{background:#D3ECF2;color:#0A3D4C}
+.tag.ok{background:#E8F5EC;color:var(--ok)}
+figure.chart{margin:10px 0;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}
+figure.chart svg{width:100%;height:auto;display:block}
+figure.chart figcaption{font-size:.84rem;color:var(--muted);padding:4px 4px 0}
+.radios{display:flex;flex-direction:column;gap:4px}
+.radios label{font-weight:400;display:flex;gap:8px;align-items:flex-start;padding:5px 6px;border-radius:6px}
+.radios label:hover{background:#F2F6FA}
+.radios input{margin-top:4px;flex:0 0 auto;width:18px;height:18px;accent-color:var(--teal)}
+.radios b{color:var(--navy);min-width:1.1em}
+.domain{border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0}
+.checks label{font-weight:400;display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.checks input{width:18px;height:18px;margin-top:3px;accent-color:var(--teal)}
+.inline-radios{display:flex;flex-wrap:wrap;gap:6px 18px}
+.inline-radios label{font-weight:400;display:flex;gap:6px;align-items:center}
+.inline-radios input{width:18px;height:18px;accent-color:var(--teal)}
+table.km-input td{white-space:normal}
+table.km-input input{min-width:90px}
+.matrix{border-collapse:separate;border-spacing:3px;width:auto;min-width:100%}
+.matrix th{background:transparent;text-align:center;font-size:.82rem;color:var(--navy);white-space:normal;border:0;padding:4px}
+.matrix td{text-align:center;border:0;border-radius:6px;padding:6px 4px;min-width:64px;height:52px;font-size:.78rem;white-space:normal;vertical-align:middle}
+.matrix td.acc{background:var(--acc);color:#1F4D2C}
+.matrix td.alarp{background:var(--alarp);color:#5C3A00}
+.matrix td.unacc{background:var(--unacc);color:#7A1A12}
+.mk{display:inline-block;min-width:22px;padding:2px 5px;margin:1px;border-radius:999px;background:var(--navy);color:#fff;font-weight:700;font-size:.78rem}
+.mk.after{background:#9B1C12}
+.mk.target{background:#fff;color:var(--navy);border:2px dashed var(--navy)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.84rem;color:var(--muted);margin:6px 0}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:1px solid #99A}
+#dr-output:empty,#dr-status:empty{display:none}
+.record{border:2px solid var(--navy);border-radius:8px;padding:18px;margin-top:14px;background:#fff}
+.record h3{margin:0 0 2px;font-size:1.25rem}
+.record .meta{color:var(--muted);font-size:.86rem;margin:0 0 12px}
+.record dl{display:grid;grid-template-columns:minmax(150px,230px) 1fr;gap:0;margin:0}
+.record dt,.record dd{padding:7px 8px;border-top:1px solid #E3E8EE;margin:0}
+.record dt{font-weight:700;color:var(--navy)}
+.record dd{white-space:pre-wrap;overflow-wrap:anywhere}
+.record .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 14px}
+.record .box{border:2px solid var(--teal);border-radius:8px;padding:10px 12px}
+.record .box.status{border-color:#6B7A8C;border-style:dashed}
+.record .box .k{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.record .box .v{font-size:1.15rem;font-weight:700;color:var(--navy)}
+.record .box .d{font-size:.82rem;color:var(--muted)}
+.record .sig{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:22px}
+.record .sig div{border-top:1px solid var(--ink);padding-top:4px;font-size:.84rem;color:var(--muted)}
+.record .foot{font-size:.78rem;color:var(--muted);margin-top:14px}
+footer.site{background:var(--navy-2);color:#DCE7F2;padding:22px var(--gutter);font-size:.9rem}
+footer.site a{color:#fff}
+footer.site :focus-visible{outline-color:#fff}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+@media (max-width:640px){
+  section.module{padding:16px 14px}
+  .record dl{grid-template-columns:1fr}
+  .record dt{border-top:1px solid #E3E8EE;padding-bottom:0}
+  .record dd{border-top:0}
+  .record .pair,.record .sig{grid-template-columns:1fr}
+  nav.modules{position:static}
+  figure.chart.wide{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  figure.chart.wide svg{min-width:600px}
+  figure.chart.wide figcaption{min-width:0}
+  .matrix td{min-width:50px;height:46px;font-size:.72rem}
+  .matrix th{font-size:.74rem}
+  nav.modules a{font-size:.84rem;padding:5px 9px}
+}
+@media print{
+  @page{margin:16mm}
+  body{background:#fff;font-size:11pt}
+  nav.modules,.btns,.skip,button,footer.site .noprint{display:none!important}
+  section.module{border:1px solid #999;break-inside:auto;box-shadow:none}
+  a{color:#000}
+  header.site{background:#fff!important;color:#000;border-bottom:2px solid #000;padding:0 0 8px}
+  header.site p.sub,header.site .kicker{color:#333}
+  header.site a{color:#000}
+  body.print-record header.site,body.print-record nav.modules,body.print-record .disclaimer,body.print-record footer.site,
+  body.print-record main > section.module:not(#decision),
+  body.print-record #decision > :not(#dr-output){display:none!important}
+  body.print-record #decision{border:0;padding:0;margin:0}
+  body.print-record main{padding:0}
+  .record{border:1.5px solid #000;break-inside:auto}
+  .record dt,.record dd{break-inside:avoid}
+  .record .box{border-color:#000}
+  .record dl{grid-template-columns:44mm 1fr}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the modules</a>
+<header class="site">
+  <div class="wrap">
+    <p class="kicker">Companion web tool · Selim Medical Press</p>
+    <h1>Signal Management in Medical Device Vigilance</h1>
+    <p class="sub">Six calculators and records from the book, by Dr. Hafez Selim, MD, PhD. <a href="../">Book and toolkit home</a> · <a href="../lab/">Case Lab: the full process with solved cases</a></p>
+  </div>
+</header>
+<nav class="modules" aria-label="Modules">
+  <ul>
+    <li><a href="#trend">1 · Trend screen</a></li>
+    <li><a href="#dispro">2 · Disproportionality &amp; O/E</a></li>
+    <li><a href="#ttf">3 · Time to failure</a></li>
+    <li><a href="#prio">4 · Prioritization</a></li>
+    <li><a href="#risk">5 · Risk-file update</a></li>
+    <li><a href="#decision">6 · Decision record</a></li>
+  </ul>
+</nav>
+<main id="main" class="wrap" tabindex="-1">
+  <div class="disclaimer" role="note">
+    <strong>Educational tool.</strong> It shows the methods taught in the book. It is not validated software and not a controlled quality record. Every threshold, band, score anchor, matrix and response time here is an <strong>example</strong> of a company design, not a regulatory requirement. Book examples use fictional cases with illustrative numbers. The tool runs only in your browser. It sends nothing and stores nothing, and it never fills in a value you did not enter or load.
+  </div>
+
+  <!-- ============ MODULE 1: TREND ============ -->
+  <section class="module" id="trend" aria-labelledby="trend-h">
+    <span class="chap">Chapter 8</span>
+    <h2 id="trend-h">Trend screen: p-chart limits, run rule and CUSUM</h2>
+    <p class="lead">Expected count = units × baseline proportion. SD = √(n × p0 × (1 − p0)). Limits = expected + 2 or 3 × SD. The run rule flags 2 of 3 consecutive points beyond the upper 2σ limit. The standardized CUSUM is S(t) = max(0, S(t−1) + z − k), with z = (observed − expected) ÷ SD, and it signals when S exceeds h.</p>
+    <form id="trend-form" novalidate onsubmit="return false">
+      <div class="grid">
+        <div class="field"><label for="tr-rate">Baseline rate (events per 1,000 units)</label><input type="text" inputmode="decimal" id="tr-rate" aria-describedby="tr-rate-h" autocomplete="off"><span class="hint" id="tr-rate-h">Fixed before monitoring starts. The rate must be above 0 and below 1,000.</span></div>
+        <div class="field"><label for="tr-units">Units per period</label><input type="text" id="tr-units" aria-describedby="tr-units-h" autocomplete="off"><span class="hint" id="tr-units-h">Enter one value for every period, or one value per period separated by spaces or semicolons. You may write thousands with commas, for example 50,000.</span></div>
+        <div class="field"><label for="tr-k">CUSUM allowance k (SD units)</label><input type="text" inputmode="decimal" id="tr-k" aria-describedby="tr-k-h" autocomplete="off"><span class="hint" id="tr-k-h">Usually half the shift to detect. Must be 0 or more.</span></div>
+        <div class="field"><label for="tr-h">CUSUM decision limit h</label><input type="text" inputmode="decimal" id="tr-h" aria-describedby="tr-h-h" autocomplete="off"><span class="hint" id="tr-h-h">Must be above 0.</span></div>
+        <div class="field wide"><label for="tr-counts">Event counts per period, in time order</label><textarea id="tr-counts" rows="2" aria-describedby="tr-counts-h"></textarea><span class="hint" id="tr-counts-h">Whole numbers separated by commas, spaces, semicolons or new lines. Do not use thousands separators here.</span></div>
+        <div class="field wide"><label for="tr-labels">Period labels (optional)</label><input type="text" id="tr-labels" aria-describedby="tr-labels-h" autocomplete="off"><span class="hint" id="tr-labels-h">Separate labels with commas, for example "Y3 M10, Y3 M11". If you give labels, give one for each count.</span></div>
+      </div>
+      <div class="btns">
+        <button type="button" class="primary" id="tr-run">Calculate</button>
+        <button type="button" class="secondary" id="tr-ex">Load book example (Suturex)</button>
+        <button type="button" class="ghost" id="tr-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="tr-err" role="alert" tabindex="-1"></div>
+    <div class="results" id="tr-out" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ MODULE 2: DISPRO + O/E ============ -->
+  <section class="module" id="dispro" aria-labelledby="dp-h">
+    <span class="chap">Chapter 9</span>
+    <h2 id="dp-h">Disproportionality screen and registry observed-to-expected</h2>
+    <p class="lead">A ratio shows that an event is overrepresented in reports. It is not an event rate or a relative risk. An O/E flag shows more revisions than the case mix predicts. It does not show the cause.</p>
+
+    <h3 id="dp2-h">A. Disproportionality 2×2 table (one product code)</h3>
+    <form id="dp-form" novalidate onsubmit="return false" aria-labelledby="dp2-h">
+      <div class="grid">
+        <div class="field"><label for="dp-a">a: device of interest, with the event</label><input type="text" inputmode="numeric" id="dp-a" autocomplete="off"></div>
+        <div class="field"><label for="dp-b">b: device of interest, other reports</label><input type="text" inputmode="numeric" id="dp-b" autocomplete="off"></div>
+        <div class="field"><label for="dp-c">c: comparators, with the event</label><input type="text" inputmode="numeric" id="dp-c" autocomplete="off"></div>
+        <div class="field"><label for="dp-d">d: comparators, other reports</label><input type="text" inputmode="numeric" id="dp-d" autocomplete="off"></div>
+      </div>
+      <fieldset style="margin-top:14px">
+        <legend>Company screening rule (optional; fill in all three or leave all three empty)</legend>
+        <div class="grid">
+          <div class="field"><label for="dp-rprr">PRR at least</label><input type="text" inputmode="decimal" id="dp-rprr" autocomplete="off"></div>
+          <div class="field"><label for="dp-rchi">Chi-square (Yates) at least</label><input type="text" inputmode="decimal" id="dp-rchi" autocomplete="off"></div>
+          <div class="field"><label for="dp-rn">Reports (cell a) at least</label><input type="text" inputmode="numeric" id="dp-rn" autocomplete="off"></div>
+        </div>
+      </fieldset>
+      <p class="hint">Whole numbers. You may write thousands with commas, for example 8,910. The 95% intervals use the log method: SE of ln(PRR) = √(1/a − 1/(a+b) + 1/c − 1/(c+d)), and SE of ln(ROR) = √(1/a + 1/b + 1/c + 1/d).</p>
+      <div class="btns">
+        <button type="button" class="primary" id="dp-run">Calculate</button>
+        <button type="button" class="secondary" id="dp-ex">Load book example (Glucalyn)</button>
+        <button type="button" class="ghost" id="dp-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="dp-err" role="alert" tabindex="-1"></div>
+    <div class="results" id="dp-out" aria-live="polite"></div>
+
+    <h3 id="oe-h">B. Registry observed-to-expected with exact Poisson limits</h3>
+    <form id="oe-form" novalidate onsubmit="return false" aria-labelledby="oe-h">
+      <div class="grid">
+        <div class="field"><label for="oe-o">Observed events (O)</label><input type="text" inputmode="numeric" id="oe-o" autocomplete="off"><span class="hint">A whole number, 0 or more.</span></div>
+        <div class="field"><label for="oe-e">Expected events (E), adjusted for case mix</label><input type="text" inputmode="decimal" id="oe-e" autocomplete="off"><span class="hint">Must be above 0.</span></div>
+        <div class="field"><label for="oe-name">Implant or device name (optional)</label><input type="text" id="oe-name" autocomplete="off"></div>
+      </div>
+      <p class="hint">The 95% interval for O/E is the exact Poisson interval for O divided by E. The funnel limits are exact Poisson quantiles at E: 2.5% and 97.5% for the 95% limits, and 0.1% and 99.9% for the 99.8% limits.</p>
+      <div class="btns">
+        <button type="button" class="primary" id="oe-run">Calculate</button>
+        <button type="button" class="secondary" id="oe-ex">Load book example (Tessora)</button>
+        <button type="button" class="ghost" id="oe-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="oe-err" role="alert" tabindex="-1"></div>
+    <div class="results" id="oe-out" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ MODULE 3: TIME TO FAILURE ============ -->
+  <section class="module" id="ttf" aria-labelledby="km-h">
+    <span class="chap">Chapter 10</span>
+    <h2 id="km-h">Time to failure: life table with Kaplan–Meier survival</h2>
+    <p class="lead">For each interval, enter the devices at risk at its start and the failures in it. Survival in the interval is 1 − (failures ÷ at risk), and cumulative survival is the product of these values. The Greenwood variance is S² × Σ [d ÷ (n × (n − d))], and the 95% interval is linear, S ± 1.96 × SE, truncated at 0% and 100%.</p>
+    <form id="km-form" novalidate onsubmit="return false">
+      <div class="tablewrap">
+        <table class="km-input">
+          <caption class="sr-only">Life-table input rows</caption>
+          <thead><tr><th class="l" scope="col">Interval label (optional)</th><th class="l" scope="col">Devices at risk at start</th><th class="l" scope="col">Failures in interval</th></tr></thead>
+          <tbody id="km-rows"></tbody>
+        </table>
+      </div>
+      <div class="btns">
+        <button type="button" class="ghost" id="km-add">Add interval</button>
+        <button type="button" class="ghost" id="km-del">Remove last interval</button>
+      </div>
+      <div class="btns">
+        <button type="button" class="primary" id="km-run">Calculate</button>
+        <button type="button" class="secondary" id="km-ex">Load book example (Kestran)</button>
+        <button type="button" class="ghost" id="km-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="km-err" role="alert" tabindex="-1"></div>
+    <div class="results" id="km-out" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ MODULE 4: PRIORITIZATION ============ -->
+  <section class="module" id="prio" aria-labelledby="pr-h">
+    <span class="chap">Chapter 13</span>
+    <h2 id="pr-h">Signal prioritization: five-domain scale</h2>
+    <p class="lead">Score each domain from 1 to 5 against the anchors, and write a rationale for each score. Scores 2 and 4 fall between the anchors shown. The example company's bands are A (20–25), B (14–19) and C (5–13). A signal with severity 5 and detectability 4 or 5 goes to Band B at least. Any urgency trigger sends it to Band A. The board may move a signal one band up or down. Either move needs a written reason, and a downward move also needs the chair's signature. Prioritization never changes a legal reporting clock.</p>
+    <form id="pr-form" novalidate onsubmit="return false">
+      <div class="grid two">
+        <div class="field"><label for="pr-sig">Signal and data cut (optional)</label><input type="text" id="pr-sig" autocomplete="off"></div>
+        <div class="field"><label for="pr-rf">Risk-file hazard entry used for the scales (optional)</label><input type="text" id="pr-rf" autocomplete="off"></div>
+      </div>
+      <div id="pr-domains"></div>
+      <fieldset class="domain" id="pr-trig-fs">
+        <legend>Urgency triggers (tick any that apply)</legend>
+        <div class="checks" id="pr-trig"></div>
+      </fieldset>
+      <fieldset class="domain" id="pr-ov-fs" aria-describedby="pr-ov-h">
+        <legend>Board override</legend>
+        <p class="hint" id="pr-ov-h">The override is recorded on the worksheet next to the score, so the reason stays with the signal record.</p>
+        <div class="inline-radios" id="pr-ov">
+          <label><input type="radio" name="pr-ov" value="none"> No override</label>
+          <label><input type="radio" name="pr-ov" value="up"> Up one band</label>
+          <label><input type="radio" name="pr-ov" value="down"> Down one band</label>
+        </div>
+        <div class="grid two" style="margin-top:10px">
+          <div class="field"><label for="pr-ovr">Override reason (required for any move)</label><textarea id="pr-ovr" rows="2"></textarea></div>
+          <div class="field"><label for="pr-chair">Chair signature or initials (required for a downward move)</label><input type="text" id="pr-chair" autocomplete="off"></div>
+        </div>
+      </fieldset>
+      <div class="btns">
+        <button type="button" class="primary" id="pr-run">Calculate band</button>
+        <button type="button" class="secondary" id="pr-ex">Load book example (Glucalyn)</button>
+        <button type="button" class="ghost" id="pr-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="pr-err" role="alert" tabindex="-1"></div>
+    <div class="results" id="pr-out" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ MODULE 5: RISK FILE ============ -->
+  <section class="module" id="risk" aria-labelledby="rk-h">
+    <span class="chap">Chapter 18</span>
+    <h2 id="rk-h">Risk-file update: probability band and risk region</h2>
+    <p class="lead">This module uses the illustrative company 5×5 matrix from Chapter 18 (Tables 18.1 and 18.2), which is not a regulatory requirement. Enter the risk-file estimate from before the signal and the post-market data, using the exposure of the affected population only. Placing a risk in a cell does not replace the written ALARP and state-of-the-art judgment.</p>
+    <form id="rk-form" novalidate onsubmit="return false">
+      <div class="grid">
+        <div class="field"><label for="rk-unit">Exposure unit (optional label)</label><input type="text" id="rk-unit" aria-describedby="rk-unit-h" autocomplete="off"><span class="hint" id="rk-unit-h">For example "pump-years". If you leave this empty, the tool uses "unit-years".</span></div>
+      </div>
+      <fieldset class="domain">
+        <legend>Before the signal (risk-file estimate)</legend>
+        <div class="grid">
+          <div class="field"><label for="rk-bn">Probability of harm: 1 in N unit-years. Enter N.</label><input type="text" inputmode="decimal" id="rk-bn" autocomplete="off"><span class="hint">N must be 1 or more.</span></div>
+          <div class="field"><label for="rk-bs">Severity</label><select id="rk-bs"></select></div>
+        </div>
+      </fieldset>
+      <fieldset class="domain">
+        <legend>After the signal (post-market estimate)</legend>
+        <div class="grid">
+          <div class="field"><label for="rk-ae">Harm events (whole number)</label><input type="text" inputmode="numeric" id="rk-ae" autocomplete="off"></div>
+          <div class="field"><label for="rk-ax">Exposure of the affected population (unit-years)</label><input type="text" inputmode="decimal" id="rk-ax" autocomplete="off"></div>
+          <div class="field"><label for="rk-ah">Hazardous-situation events (optional, used to split P1 and P2)</label><input type="text" inputmode="numeric" id="rk-ah" autocomplete="off"></div>
+          <div class="field"><label for="rk-as">Severity</label><select id="rk-as"></select></div>
+        </div>
+      </fieldset>
+      <fieldset class="domain">
+        <legend>Post-control target (optional; a verification target, not a result)</legend>
+        <div class="grid">
+          <div class="field"><label for="rk-tn">Target: 1 in N unit-years or better. Enter N.</label><input type="text" inputmode="decimal" id="rk-tn" autocomplete="off"></div>
+          <div class="field"><label for="rk-ts">Severity after controls</label><select id="rk-ts"></select></div>
+        </div>
+      </fieldset>
+      <div class="btns">
+        <button type="button" class="primary" id="rk-run">Place on matrix</button>
+        <button type="button" class="secondary" id="rk-ex">Load book example (Glucalyn)</button>
+        <button type="button" class="ghost" id="rk-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="rk-err" role="alert" tabindex="-1"></div>
+    <div class="results" id="rk-out" aria-live="polite"></div>
+  </section>
+
+  <!-- ============ MODULE 6: DECISION RECORD ============ -->
+  <section class="module" id="decision" aria-labelledby="dr-h">
+    <span class="chap">Chapters 19 and 23</span>
+    <h2 id="dr-h">Decision record</h2>
+    <p class="lead">This module builds a printable record from the signal-record fields (Tool T-21) and the FSCA decision-record fields (Tool T-17). The record keeps the <strong>conclusion</strong> (confirmed, refuted or indeterminate) separate from the <strong>status</strong>, which is administrative. "Closed" is a status, not a finding. Write the record on the day of the decision. Later additions are new, dated entries.</p>
+    <form id="dr-form" novalidate onsubmit="return false">
+      <fieldset class="domain"><legend>Identification</legend>
+        <div class="grid two">
+          <div class="field"><label for="dr-id">Record ID *</label><input type="text" id="dr-id" autocomplete="off"></div>
+          <div class="field"><label for="dr-prod">Device, model, version or lot *</label><input type="text" id="dr-prod" autocomplete="off"></div>
+          <div class="field wide"><label for="dr-sig">Signal (hazard, hazardous situation or change in probability or severity)</label><input type="text" id="dr-sig" autocomplete="off"></div>
+        </div>
+      </fieldset>
+      <fieldset class="domain"><legend>Detection</legend>
+        <div class="grid two">
+          <div class="field"><label for="dr-cut">Data cut *</label><input type="text" id="dr-cut" autocomplete="off"></div>
+          <div class="field"><label for="dr-src">Source and method</label><input type="text" id="dr-src" autocomplete="off"></div>
+          <div class="field wide"><label for="dr-thr">Threshold, denominator, expected count and PMS plan version</label><textarea id="dr-thr" rows="2"></textarea></div>
+          <div class="field wide"><label for="dr-res">Result</label><textarea id="dr-res" rows="2"></textarea></div>
+        </div>
+      </fieldset>
+      <fieldset class="domain"><legend>Validation, assessment and conclusion</legend>
+        <div class="grid two">
+          <div class="field"><label for="dr-val">Validation *</label><select id="dr-val">
+            <option value="">Choose…</option>
+            <option value="pending">Validation not yet decided</option>
+            <option value="validated">Validated (enough information to assess)</option>
+            <option value="notvalidated">Not validated</option></select></div>
+          <div class="field"><label for="dr-con">Conclusion (assessment finding) *</label><select id="dr-con" aria-describedby="dr-con-h">
+            <option value="">Choose…</option>
+            <option value="notreached">Not reached: assessment ongoing</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="refuted">Refuted</option>
+            <option value="indeterminate">Indeterminate</option>
+            <option value="na">Not applicable: alert not validated</option></select><span class="hint" id="dr-con-h">This is a finding. It is never "closed".</span></div>
+          <div class="field wide"><label for="dr-cons">Conclusion statement</label><input type="text" id="dr-cons" autocomplete="off"></div>
+          <div class="field wide"><label for="dr-ev">Evidence and case-series summary</label><textarea id="dr-ev" rows="2"></textarea></div>
+          <div class="field wide"><label for="dr-harm">Harm and exposure</label><textarea id="dr-harm" rows="2"></textarea></div>
+        </div>
+      </fieldset>
+      <fieldset class="domain"><legend>Decision</legend>
+        <div class="grid two">
+          <div class="field wide"><label for="dr-dec">Decision and scope (versions, lots, sizes, sites, patients) *</label><textarea id="dr-dec" rows="3"></textarea></div>
+          <div class="field wide"><label for="dr-rej">Options considered and rejected, each with its reason</label><textarea id="dr-rej" rows="3"></textarea></div>
+          <div class="field wide"><label for="dr-rat">Rationale *</label><textarea id="dr-rat" rows="3"></textarea></div>
+          <div class="field wide"><label for="dr-eff">Effectiveness criteria and review date (set before the action starts)</label><textarea id="dr-eff" rows="2"></textarea></div>
+          <div class="field wide"><label for="dr-reg">Regulatory notifications made before the action starts, with dates</label><textarea id="dr-reg" rows="2"></textarea></div>
+          <div class="field wide"><label for="dr-links">Linked records (complaints, returned-device reports, CAPA, risk-file revision, trend or incident reports)</label><textarea id="dr-links" rows="2"></textarea></div>
+          <div class="field wide"><label for="dr-dis">Dissent recorded</label><input type="text" id="dr-dis" autocomplete="off"></div>
+        </div>
+      </fieldset>
+      <fieldset class="domain"><legend>Status and closure</legend>
+        <div class="grid two">
+          <div class="field"><label for="dr-st">Status (administrative) *</label><select id="dr-st" aria-describedby="dr-st-h">
+            <option value="">Choose…</option>
+            <option value="open-val">Open: validation</option>
+            <option value="open-ass">Open: under assessment</option>
+            <option value="open-act">Open: actions in progress</option>
+            <option value="open-eff">Open: effectiveness check pending</option>
+            <option value="closed">Closed (administrative)</option></select><span class="hint" id="dr-st-h">This is a status. It records whether work continues, not what was found.</span></div>
+          <div class="field wide"><label for="dr-trg">Objective reopening triggers (required to close)</label><textarea id="dr-trg" rows="2" aria-describedby="dr-trg-h"></textarea><span class="hint" id="dr-trg-h">Anyone must be able to tell whether a trigger has fired without asking the author, for example "any month above 3σ". "Reopen if concerns arise" is not a trigger.</span></div>
+          <div class="field"><label for="dr-by">Decided by (name and role) *</label><input type="text" id="dr-by" autocomplete="off"></div>
+          <div class="field"><label for="dr-date">Decision date *</label><input type="text" id="dr-date" autocomplete="off"></div>
+        </div>
+      </fieldset>
+      <p class="hint">* Required.</p>
+      <div class="btns">
+        <button type="button" class="primary" id="dr-run">Generate record</button>
+        <button type="button" class="secondary" id="dr-print" disabled>Print record</button>
+        <button type="button" class="secondary" id="dr-ex">Load book example (Suturex)</button>
+        <button type="button" class="ghost" id="dr-clear">Clear</button>
+      </div>
+    </form>
+    <div class="errors" id="dr-err" role="alert" tabindex="-1"></div>
+    <div id="dr-status" class="notice info" aria-live="polite"></div>
+    <div id="dr-output"></div>
+  </section>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <p>Companion to <em>Signal Management in Medical Device Vigilance</em> by Dr. Hafez Selim, MD, PhD. Selim Medical Press, Medical Device Safety Series, Book 5. © 2026 Selim Medical Press. The book text and cases are all rights reserved. The tool code is released under the MIT License.</p>
+    <p class="noprint">All cases (Suturex, Glucalyn, Tessora, Kestran and others) are fictional educational composites. <a href="../">Home, toolkit and change log</a></p>
+  </div>
+</footer>
+<script>
+"use strict";
+(function(){
+/* ---------------- utilities ---------------- */
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function fmt(x, dp){ if(!isFinite(x)) return "—"; return x.toLocaleString("en-US",{minimumFractionDigits:dp,maximumFractionDigits:dp}); }
+function fmtInt(x){ return Math.round(x).toLocaleString("en-US"); }
+function sig3(x){ if(!isFinite(x)) return "—"; if(x>=1000) return fmtInt(Number(x.toPrecision(3))); return String(Number(x.toPrecision(3))); }
+function fmtP(p){
+  if (!isFinite(p)) return "—";
+  if (p > 0.9999) return "above 0.9999";
+  if (p >= 0.001) return p.toFixed(4).replace(/0+$/,"").replace(/\.$/,"");
+  if (p < 1e-12) return "below 0.000000000001";
+  var d = -Math.floor(Math.log10(p)) + 1;
+  return p.toFixed(d).replace(/0+$/,"");
+}
+function rng(lo, hi, dp){ return fmt(lo,dp) + "–" + fmt(hi,dp); }
+
+/* Validation collector */
+function V(errBox, form){
+  this.box = errBox; this.form = form; this.items = [];
+  var olds = form ? form.querySelectorAll("[aria-invalid]") : [];
+  for (var i=0;i<olds.length;i++) olds[i].removeAttribute("aria-invalid");
+}
+V.prototype.add = function(el, msg){ this.items.push({el:el, msg:msg}); if(el) el.setAttribute("aria-invalid","true"); };
+V.prototype.ok = function(){ return this.items.length === 0; };
+V.prototype.show = function(){
+  var b = this.box;
+  if (this.ok()){ b.innerHTML = ""; return true; }
+  var h = '<h4>Please correct ' + (this.items.length === 1 ? 'this entry' : 'these ' + this.items.length + ' entries') + '. No result is shown until then.</h4><ul>';
+  this.items.forEach(function(it){
+    h += '<li>' + (it.el && it.el.id ? '<a href="#' + it.el.id + '">' + esc(it.msg) + '</a>' : esc(it.msg)) + '</li>';
+  });
+  b.innerHTML = h + '</ul>';
+  b.focus();
+  return false;
+};
+function clearErr(box, form){ box.innerHTML = ""; if(form){ var o=form.querySelectorAll("[aria-invalid]"); for(var i=0;i<o.length;i++) o[i].removeAttribute("aria-invalid"); } }
+
+var NUM_RE = /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+var THOUS_RE = /^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/;
+/* Reads one numeric field. Empty is never zero. */
+function num(v, el, label, o){
+  o = o || {};
+  var raw = (el.value || "").trim();
+  if (raw === ""){ if (o.optional) return null; v.add(el, label + ": this field is required."); return undefined; }
+  var s = raw;
+  if (THOUS_RE.test(s)) s = s.replace(/,/g, "");
+  if (!NUM_RE.test(s)){ v.add(el, label + ': "' + raw + '" is not a number.'); return undefined; }
+  var x = Number(s);
+  if (!isFinite(x)){ v.add(el, label + ": the number is out of range."); return undefined; }
+  if (o.int && Math.floor(x) !== x){ v.add(el, label + ": enter a whole number."); return undefined; }
+  if (o.min !== undefined && x < o.min){ v.add(el, label + ": must be at least " + o.min + "."); return undefined; }
+  if (o.gt !== undefined && !(x > o.gt)){ v.add(el, label + ": must be greater than " + o.gt + "."); return undefined; }
+  if (o.lt !== undefined && !(x < o.lt)){ v.add(el, label + ": must be less than " + fmt(o.lt,0) + "."); return undefined; }
+  return x;
+}
+/* Splits a list of numbers; returns array or undefined */
+function numList(v, el, label, o){
+  o = o || {};
+  var raw = (el.value || "").trim();
+  if (raw === ""){ v.add(el, label + ": this field is required."); return undefined; }
+  var parts = raw.split(o.thousands ? /[\s;]+/ : /[\s,;]+/).filter(function(p){ return p !== ""; });
+  var out = [];
+  for (var i=0;i<parts.length;i++){
+    var p = parts[i];
+    if (o.thousands && THOUS_RE.test(p)) p = p.replace(/,/g, "");
+    if (!NUM_RE.test(p)){ v.add(el, label + ': item ' + (i+1) + ' ("' + p + '") is not a number.'); return undefined; }
+    var x = Number(p);
+    if (o.int && Math.floor(x) !== x){ v.add(el, label + ": item " + (i+1) + " must be a whole number."); return undefined; }
+    if (o.min !== undefined && x < o.min){ v.add(el, label + ": item " + (i+1) + " must be at least " + o.min + "."); return undefined; }
+    if (o.gt !== undefined && !(x > o.gt)){ v.add(el, label + ": item " + (i+1) + " must be greater than " + o.gt + "."); return undefined; }
+    out.push(x);
+  }
+  if (!out.length){ v.add(el, label + ": enter at least one value."); return undefined; }
+  return out;
+}
+function txt(el){ return (el.value || "").trim(); }
+function setVals(map){ Object.keys(map).forEach(function(k){ $(k).value = map[k]; }); }
+function clearFields(form){
+  var els = form.querySelectorAll("input,textarea,select");
+  for (var i=0;i<els.length;i++){
+    var e = els[i];
+    if (e.type === "radio" || e.type === "checkbox") e.checked = false;
+    else if (e.tagName === "SELECT") e.selectedIndex = 0;
+    else e.value = "";
+    e.removeAttribute("aria-invalid");
+  }
+}
+
+/* ---------------- statistics ---------------- */
+var LG = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+  -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+function lgamma(x){
+  if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI*x))) - lgamma(1-x);
+  x -= 1; var a = LG[0], t = x + 7.5;
+  for (var i=1;i<9;i++) a += LG[i]/(x+i);
+  return 0.5*Math.log(2*Math.PI) + (x+0.5)*Math.log(t) - t + Math.log(a);
+}
+/* regularized lower incomplete gamma P(a,x) and upper Q(a,x) */
+function gser(a, x){
+  var sum = 1/a, del = sum, ap = a;
+  for (var n=0;n<100000;n++){ ap += 1; del *= x/ap; sum += del; if (Math.abs(del) < Math.abs(sum)*1e-15) break; }
+  return sum * Math.exp(-x + a*Math.log(x) - lgamma(a));
+}
+function gcf(a, x){
+  var FP = 1e-300, b = x + 1 - a, c = 1/FP, d = 1/b, h = d;
+  for (var i=1;i<100000;i++){
+    var an = -i*(i-a); b += 2;
+    d = an*d + b; if (Math.abs(d) < FP) d = FP;
+    c = b + an/c; if (Math.abs(c) < FP) c = FP;
+    d = 1/d; var del = d*c; h *= del;
+    if (Math.abs(del-1) < 1e-15) break;
+  }
+  return Math.exp(-x + a*Math.log(x) - lgamma(a)) * h;
+}
+function gammaP(a, x){ if (x <= 0) return 0; return (x < a+1) ? gser(a,x) : 1 - gcf(a,x); }
+function gammaQ(a, x){ if (x <= 0) return 1; return (x < a+1) ? 1 - gser(a,x) : gcf(a,x); }
+/* Poisson: P(X <= k) = Q(k+1, mu); P(X >= k) = P(k, mu) */
+function poisCdf(k, mu){ if (k < 0) return 0; return gammaQ(k+1, mu); }
+function poisSf(k, mu){ if (k <= 0) return 1; return gammaP(k, mu); }
+function normInv(p){
+  var a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239],
+      b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],
+      c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],
+      d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416], pl=0.02425, q, r;
+  if (p < pl){ q=Math.sqrt(-2*Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1-pl){ q=Math.sqrt(-2*Math.log(1-p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  q = p-0.5; r = q*q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+/* smallest integer k with P(X <= k) >= q */
+function poisQuantile(q, mu){
+  var k = Math.max(0, Math.floor(mu + normInv(q)*Math.sqrt(mu)));
+  if (poisCdf(k, mu) >= q){ while (k > 0 && poisCdf(k-1, mu) >= q) k--; }
+  else { while (poisCdf(k, mu) < q) k++; }
+  return k;
+}
+/* x such that P(a, x) = p, by bisection */
+function gammaInv(p, a){
+  var lo = 0, hi = a + 10*Math.sqrt(a) + 20;
+  while (gammaP(a, hi) < p) hi *= 2;
+  for (var i=0;i<200;i++){ var m = (lo+hi)/2; if (gammaP(a, m) < p) lo = m; else hi = m; if (hi-lo < 1e-12*Math.max(1,hi)) break; }
+  return (lo+hi)/2;
+}
+function poisExactCI(o, conf){
+  var al = 1 - conf;
+  return [o === 0 ? 0 : gammaInv(al/2, o), gammaInv(1 - al/2, o + 1)];
+}
+/* exact binomial upper tail P(X >= k) */
+function binomSf(k, n, p){
+  if (k <= 0) return 1; if (k > n) return 0;
+  var mean = n*p;
+  var lc = lgamma(n+1), lp = Math.log(p), lq = Math.log1p(-p), s = 0, i, t;
+  if (k > mean){ /* sum upper tail directly */
+    for (i=k; i<=n; i++){ t = Math.exp(lc - lgamma(i+1) - lgamma(n-i+1) + i*lp + (n-i)*lq); s += t; if (i > k+10 && t < s*1e-17) break; }
+    return Math.min(1, s);
+  }
+  for (i=0; i<k; i++){ s += Math.exp(lc - lgamma(i+1) - lgamma(n-i+1) + i*lp + (n-i)*lq); }
+  return Math.max(0, 1 - s);
+}
+
+/* ---------------- SVG helpers ---------------- */
+var NS = "http://www.w3.org/2000/svg";
+function svgOpen(w, h, label){ return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + esc(label) + '" xmlns="' + NS + '"><title>' + esc(label) + '</title>'; }
+function niceTicks(lo, hi, n){
+  var span = hi - lo; if (span <= 0) span = 1;
+  var step = Math.pow(10, Math.floor(Math.log10(span/n))); var err = span/n/step;
+  if (err >= 7.5) step *= 10; else if (err >= 3.5) step *= 5; else if (err >= 1.5) step *= 2;
+  var t = [], v = Math.ceil(lo/step)*step;
+  for (; v <= hi + step*1e-9; v += step) t.push(Number(v.toFixed(10)));
+  return t;
+}
+
+/* ================= MODULE 1: TREND ================= */
+var trForm = $("trend-form");
+function trendRun(){
+  var out = $("tr-out"); out.innerHTML = "";
+  var v = new V($("tr-err"), trForm);
+  var rate = num(v, $("tr-rate"), "Baseline rate", {gt:0, lt:1000});
+  var units = numList(v, $("tr-units"), "Units per period", {int:true, gt:0, thousands:true});
+  var counts = numList(v, $("tr-counts"), "Event counts", {int:true, min:0});
+  var k = num(v, $("tr-k"), "CUSUM allowance k", {min:0});
+  var h = num(v, $("tr-h"), "CUSUM decision limit h", {gt:0});
+  var labRaw = txt($("tr-labels")), labels = null;
+  if (counts && units){
+    if (units.length !== 1 && units.length !== counts.length) v.add($("tr-units"), "Units per period: give one value, or exactly one value per count (" + counts.length + " counts, " + units.length + " unit values).");
+    else counts.forEach(function(c, i){ var n = units.length === 1 ? units[0] : units[i]; if (c > n) v.add($("tr-counts"), "Event counts: period " + (i+1) + " has more events (" + c + ") than units (" + n + ")."); });
+  }
+  if (labRaw !== "" && counts){
+    labels = labRaw.split(/\s*[,;\n]\s*/).map(function(s){ return s.trim(); });
+    if (labels.length !== counts.length || labels.some(function(s){ return s === ""; })) v.add($("tr-labels"), "Period labels: give exactly one non-empty label per count (" + counts.length + " counts, " + labels.length + " labels), or leave the field empty.");
+  }
+  if (!v.show()) return;
+  var p0 = rate/1000, rows = [], S = 0, lowE = false;
+  for (var i=0;i<counts.length;i++){
+    var n = units.length === 1 ? units[0] : units[i];
+    var e = n*p0, sd = Math.sqrt(n*p0*(1-p0)), l2 = e + 2*sd, l3 = e + 3*sd;
+    var z = (counts[i]-e)/sd;
+    S = Math.max(0, S + z - k);
+    if (e < 10) lowE = true;
+    rows.push({lab: labels ? labels[i] : "Period " + (i+1), c: counts[i], n: n, e: e, sd: sd, l2: l2, l3: l3, z: z, S: S,
+      b2: counts[i] > l2, b3: counts[i] > l3, tail: binomSf(counts[i], n, p0)});
+  }
+  rows.forEach(function(r, i){
+    var w = rows.slice(Math.max(0, i-2), i+1).filter(function(x){ return x.b2; }).length;
+    r.run = r.b2 && w >= 2 && i >= 1;
+    r.cus = r.S > h;
+  });
+  var constN = units.length === 1 || units.every(function(u){ return u === units[0]; });
+  var html = "";
+  var r0 = rows[0];
+  if (constN){
+    var t2 = Math.floor(r0.l2) + 1, t3 = Math.floor(r0.l3) + 1;
+    html += '<div class="kpis">' +
+      kpi("Expected count per period", fmt(r0.e,1), fmtInt(r0.n) + " units × " + fmt(rate, 2).replace(/\.?0+$/,"") + " per 1,000") +
+      kpi("Standard deviation", fmt(r0.sd,2), "√(n × p0 × (1 − p0))") +
+      kpi("2σ upper limit", fmt(r0.l2,1), fmt(r0.l2/r0.n*1000,2) + " per 1,000; " + t2 + " or more breaches") +
+      kpi("3σ upper limit", fmt(r0.l3,1), fmt(r0.l3/r0.n*1000,2) + " per 1,000; " + t3 + " or more breaches") + '</div>';
+    html += '<p><strong>Normal-approximation check (exact binomial).</strong> If nothing has changed, P(count ≥ ' + t2 + ') = ' + fmtP(binomSf(t2, r0.n, p0)) + ' against 0.023 assumed by a normal 2σ limit, and P(count ≥ ' + t3 + ') = ' + fmtP(binomSf(t3, r0.n, p0)) + ' against 0.0013 for 3σ.</p>';
+  } else {
+    html += '<p class="notice info">The number of units varies by period, so the expected count and limits are calculated for each period (see the table).</p>';
+  }
+  if (lowE) html += '<p class="notice warn"><strong>Small expected counts.</strong> At least one period expects fewer than 10 events. With rare events, normal-based limits misstate the false-alarm rate. Use the exact tail probabilities in the table, and state the method in the PMS plan.</p>';
+  var first3 = rows.find(function(r){ return r.b3; }), firstRun = rows.find(function(r){ return r.run; }), firstCus = rows.find(function(r){ return r.cus; }), first2 = rows.find(function(r){ return r.b2; });
+  var ev = [];
+  ev.push(first2 ? "First point beyond 2σ: " + esc(first2.lab) + " (" + first2.c + ")." : "No point lies beyond 2σ.");
+  ev.push(first3 ? "First point beyond 3σ: " + esc(first3.lab) + " (" + first3.c + ", " + fmt(first3.c/first3.e, 1) + " times expected)." : "No point lies beyond 3σ.");
+  ev.push(firstRun ? "Run rule (2 of 3 consecutive points beyond 2σ) first met at " + esc(firstRun.lab) + "." : "Run rule (2 of 3 beyond 2σ) not met.");
+  ev.push(firstCus ? "CUSUM first exceeds h = " + fmt(h, 2).replace(/\.?0+$/,"") + " at " + esc(firstCus.lab) + " (S = " + fmt(firstCus.S,2) + ")." : "CUSUM stays at or below h = " + fmt(h,2).replace(/\.?0+$/,"") + " (last S = " + fmt(rows[rows.length-1].S,2) + ").");
+  var totC = rows.reduce(function(a,r){ return a+r.c; },0), totE = rows.reduce(function(a,r){ return a+r.e; },0);
+  ev.push("Total over " + rows.length + " periods: " + fmtInt(totC) + " observed against " + fmt(totE,1) + " expected.");
+  var alarm = first3 || firstRun || firstCus;
+  html += '<div class="notice ' + (alarm ? 'bad' : (first2 ? 'warn' : 'good')) + '"><ul style="margin:0;padding-left:18px"><li>' + ev.join("</li><li>") + '</li></ul></div>';
+  html += '<p class="hint">A breach is a reason to review, not a finding. The screening and reporting rules are company choices written in the PMS plan before the data arrive. Review severity separately.</p>';
+  html += trendChart(rows, h);
+  html += '<div class="tablewrap"><table><caption class="sr-only">Trend results by period</caption><thead><tr><th scope="col">Period</th><th scope="col">Count</th><th scope="col">Rate per 1,000</th>' +
+    (constN ? '' : '<th scope="col">Units</th><th scope="col">Expected</th><th scope="col">2σ</th><th scope="col">3σ</th>') +
+    '<th scope="col">z</th><th scope="col">CUSUM S(t)</th><th scope="col">Exact P(≥ count)</th><th scope="col" class="l">Status</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    var tags = [];
+    if (r.b3) tags.push('<span class="tag t3">Beyond 3σ</span>'); else if (r.b2) tags.push('<span class="tag t2">Beyond 2σ</span>');
+    if (r.run) tags.push('<span class="tag tr">2 of 3 beyond 2σ</span>');
+    if (r.cus) tags.push('<span class="tag tc">CUSUM &gt; h</span>');
+    if (!tags.length) tags.push('<span class="tag ok">Within limits</span>');
+    html += '<tr class="' + (r.b3 ? 'flag3' : (r.b2 ? 'flag2' : '')) + '"><th scope="row" style="text-align:left;font-weight:600">' + esc(r.lab) + '</th><td>' + fmtInt(r.c) + '</td><td>' + fmt(r.c/r.n*1000,2) + '</td>' +
+      (constN ? '' : '<td>' + fmtInt(r.n) + '</td><td>' + fmt(r.e,1) + '</td><td>' + fmt(r.l2,1) + '</td><td>' + fmt(r.l3,1) + '</td>') +
+      '<td>' + fmt(r.z,2) + '</td><td>' + fmt(r.S,2) + '</td><td>' + fmtP(r.tail) + '</td><td class="l">' + tags.join(" ") + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  html += '<p class="hint">The CUSUM starts at 0 with k = ' + esc(String(k)) + ' and h = ' + esc(String(h)) + '. The run rule checks the upper side only and is shown on the point that completes the pattern. "Exact P(≥ count)" is the binomial probability of a count at least this high if the baseline rate still holds.</p>';
+  out.innerHTML = html;
+}
+function kpi(k, v, s){ return '<div class="kpi"><div class="k">' + esc(k) + '</div><div class="v">' + v + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div>'; }
+function trendChart(rows, h){
+  var W = 760, H = 430, L = 56, R = 96, T = 22, P1 = 250, G = 46, P2 = 90;
+  var n = rows.length;
+  var ymax = Math.max.apply(null, rows.map(function(r){ return Math.max(r.c, r.l3); })) * 1.08;
+  var ymin = Math.max(0, Math.min.apply(null, rows.map(function(r){ return Math.min(r.c, r.e); })) * 0.85);
+  var xs = function(i){ return n === 1 ? L + (W-L-R)/2 : L + i*(W-L-R)/(n-1); };
+  var ys = function(v){ return T + P1 - (v-ymin)/(ymax-ymin)*P1; };
+  var smax = Math.max(h*1.15, Math.max.apply(null, rows.map(function(r){ return r.S; }))*1.08, 1);
+  var T2 = T + P1 + G;
+  var ys2 = function(v){ return T2 + P2 - v/smax*P2; };
+  var s = svgOpen(W, H, "Control chart of counts against expected, 2 sigma and 3 sigma limits, with the CUSUM below");
+  s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#fff"/>';
+  niceTicks(ymin, ymax, 5).forEach(function(t){ var y = ys(t); s += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + y + '" y2="' + y + '" stroke="#E3E8EE"/><text x="' + (L-6) + '" y="' + (y+4) + '" font-size="11" text-anchor="end" fill="#4A5566">' + t + '</text>'; });
+  function line(key, color, dash, lab){
+    var d = rows.map(function(r,i){ return (i?'L':'M') + xs(i).toFixed(1) + ' ' + ys(r[key]).toFixed(1); }).join(' ');
+    if (n === 1) d = 'M' + L + ' ' + ys(rows[0][key]) + ' L' + (W-R) + ' ' + ys(rows[0][key]);
+    var ly = ys(rows[n-1][key]);
+    return '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="1.6" ' + (dash ? 'stroke-dasharray="' + dash + '"' : '') + '/>' +
+      '<text x="' + (W-R+8) + '" y="' + (ly+4) + '" font-size="11" text-anchor="start" fill="' + color + '" font-weight="600">' + lab + '</text>';
+  }
+  s += line("l3", "#B42318", "6 4", "3σ " + fmt(rows[n-1].l3,1));
+  s += line("l2", "#A35A00", "3 3", "2σ " + fmt(rows[n-1].l2,1));
+  s += line("e", "#4A5566", "1 3", "Expected " + fmt(rows[n-1].e,1));
+  s += '<path d="' + rows.map(function(r,i){ return (i?'L':'M') + xs(i).toFixed(1) + ' ' + ys(r.c).toFixed(1); }).join(' ') + '" fill="none" stroke="#17375E" stroke-width="2.4"/>';
+  rows.forEach(function(r,i){
+    var col = r.b3 ? '#B42318' : (r.b2 ? '#A35A00' : '#17375E');
+    s += '<circle cx="' + xs(i) + '" cy="' + ys(r.c) + '" r="' + (r.b2 ? 5.5 : 4) + '" fill="' + col + '" stroke="#fff" stroke-width="1.5"/>';
+  });
+  s += '<text x="' + L + '" y="' + (T-8) + '" font-size="12" font-weight="700" fill="#17375E">Count per period</text>';
+  /* CUSUM panel */
+  s += '<text x="' + L + '" y="' + (T2-8) + '" font-size="12" font-weight="700" fill="#0E7490">Standardized CUSUM S(t)</text>';
+  niceTicks(0, smax, 3).forEach(function(t){ var y = ys2(t); s += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + y + '" y2="' + y + '" stroke="#E3E8EE"/><text x="' + (L-6) + '" y="' + (y+4) + '" font-size="11" text-anchor="end" fill="#4A5566">' + t + '</text>'; });
+  s += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + ys2(h) + '" y2="' + ys2(h) + '" stroke="#B42318" stroke-dasharray="6 4" stroke-width="1.6"/><text x="' + (W-R+8) + '" y="' + (ys2(h)+4) + '" font-size="11" text-anchor="start" fill="#B42318" font-weight="600">h = ' + h + '</text>';
+  var bw = Math.max(4, Math.min(28, (W-L-R)/Math.max(n,1)*0.5));
+  rows.forEach(function(r,i){ var y = ys2(r.S); s += '<rect x="' + (xs(i)-bw/2) + '" y="' + y + '" width="' + bw + '" height="' + Math.max(0, T2+P2-y) + '" fill="' + (r.cus ? '#B42318' : '#0E7490') + '" opacity="0.85"/>'; });
+  var every = Math.ceil(n/12);
+  rows.forEach(function(r,i){ if (i % every === 0 || i === n-1) s += '<text x="' + xs(i) + '" y="' + (T2+P2+16) + '" font-size="11" text-anchor="middle" fill="#4A5566">' + esc(r.lab.length > 10 ? r.lab.slice(0,10) + '…' : r.lab) + '</text>'; });
+  s += '</svg>';
+  return '<figure class="chart wide" tabindex="0">' + s + '<figcaption>Counts against the expected count and the upper 2σ and 3σ limits (top), with the standardized CUSUM and its decision limit h (bottom). Red marks a 3σ breach or a CUSUM signal, and amber marks a 2σ breach. The table below gives the same values.</figcaption></figure>';
+}
+$("tr-run").addEventListener("click", trendRun);
+$("tr-clear").addEventListener("click", function(){ clearFields(trForm); clearErr($("tr-err")); $("tr-out").innerHTML = ""; });
+$("tr-ex").addEventListener("click", function(){
+  clearErr($("tr-err"), trForm);
+  setVals({"tr-rate":"0.40","tr-units":"50000","tr-k":"0.5","tr-h":"4",
+    "tr-counts":"19, 23, 22, 22, 27, 31, 36",
+    "tr-labels":"Y3 M10, Y3 M11, Y3 M12, Y4 M1, Y4 M2, Y4 M3, Y4 M4"});
+  trendRun();
+  $("tr-out").insertAdjacentHTML("afterbegin", exNote("Suturex misfire complaints, Year 3, month 10 to Year 4, month 4 (Chapter 8, Table 8.1)."));
+});
+function exNote(t){ return '<p class="notice info"><strong>Book example loaded.</strong> ' + esc(t) + ' This is a fictional case with illustrative numbers.</p>'; }
+
+/* ================= MODULE 2A: DISPROPORTIONALITY ================= */
+var dpForm = $("dp-form");
+function dpRun(){
+  var out = $("dp-out"); out.innerHTML = "";
+  var v = new V($("dp-err"), dpForm);
+  var a = num(v, $("dp-a"), "Cell a", {int:true, min:0}), b = num(v, $("dp-b"), "Cell b", {int:true, min:0}),
+      c = num(v, $("dp-c"), "Cell c", {int:true, min:0}), d = num(v, $("dp-d"), "Cell d", {int:true, min:0});
+  var rp = num(v, $("dp-rprr"), "Rule: PRR at least", {optional:true, gt:0}),
+      rc = num(v, $("dp-rchi"), "Rule: chi-square at least", {optional:true, min:0}),
+      rn = num(v, $("dp-rn"), "Rule: reports at least", {optional:true, int:true, min:0});
+  var ruleVals = [rp, rc, rn], filled = ["dp-rprr","dp-rchi","dp-rn"].filter(function(id){ return txt($(id)) !== ""; });
+  if (filled.length > 0 && filled.length < 3){
+    ["dp-rprr","dp-rchi","dp-rn"].forEach(function(id){ if (txt($(id)) === "") v.add($(id), "Screening rule: fill in all three values, or leave all three empty."); });
+  }
+  if (a !== undefined && b !== undefined && c !== undefined && d !== undefined){
+    if (a === 0) v.add($("dp-a"), "Cell a is 0. With no reports of the event for the device, the log-method ratios and intervals cannot be calculated.");
+    if (c === 0) v.add($("dp-c"), "Cell c is 0. The comparator has no reports of the event, so PRR and ROR are undefined. Widen the comparator or use a shrinkage method.");
+    if (b === 0) v.add($("dp-b"), "Cell b is 0. The ROR and its interval are undefined.");
+    if (d === 0) v.add($("dp-d"), "Cell d is 0. The ROR and its interval are undefined.");
+  }
+  if (!v.show()) return;
+  var N = a+b+c+d, z = 1.959964;
+  var prr = (a/(a+b))/(c/(c+d)), sePrr = Math.sqrt(1/a - 1/(a+b) + 1/c - 1/(c+d));
+  var ror = (a*d)/(b*c), seRor = Math.sqrt(1/a + 1/b + 1/c + 1/d);
+  var expA = (a+b)*(a+c)/N;
+  var chi = N*Math.pow(Math.max(0, Math.abs(a*d-b*c) - N/2), 2)/((a+b)*(c+d)*(a+c)*(b+d));
+  var html = '<div class="kpis">' +
+    kpi("PRR (95% CI)", fmt(prr,2), rng(prr*Math.exp(-z*sePrr), prr*Math.exp(z*sePrr), 2) + "; SE ln = " + fmt(sePrr,3)) +
+    kpi("ROR (95% CI)", fmt(ror,2), rng(ror*Math.exp(-z*seRor), ror*Math.exp(z*seRor), 2) + "; SE ln = " + fmt(seRor,3)) +
+    kpi("Expected count in cell a", fmt(expA,1), "Observed " + fmtInt(a) + " (" + fmt(a/expA,2) + " times expected)") +
+    kpi("Chi-square (Yates)", fmt(chi,1), "1 degree of freedom") + '</div>';
+  html += '<p>Summary: PRR ' + fmt(prr,2) + ' (' + rng(prr*Math.exp(-z*sePrr), prr*Math.exp(z*sePrr), 2) + '); ROR ' + fmt(ror,2) + ' (' + rng(ror*Math.exp(-z*seRor), ror*Math.exp(z*seRor), 2) + '). The event makes up ' + fmt(a/(a+b)*100,1) + '% of reports for the device and ' + fmt(c/(c+d)*100,1) + '% of reports for the comparators. Total reports: ' + fmtInt(N) + '.</p>';
+  if (filled.length === 3){
+    var met = prr >= rp && chi >= rc && a >= rn;
+    html += '<p class="notice ' + (met ? 'bad' : 'good') + '"><strong>Company screening rule (PRR ≥ ' + rp + ', chi-square ≥ ' + rc + ', reports ≥ ' + rn + '): ' + (met ? 'met' : 'not met') + '.</strong> ' +
+      (met ? 'The event is overrepresented in this device\'s reports. Review the signal. This is not a confirmed finding.' : 'A quiet screen does not show that the risk is absent, especially for failures that users do not report.') + ' The rule is an example of a company design, not a regulatory requirement.</p>';
+  } else {
+    html += '<p class="hint">No screening rule entered, so no flag is shown.</p>';
+  }
+  if (a < 5 || c < 5) html += '<p class="notice warn">A cell count below 5 makes the ratio unstable. Consider a shrinkage method such as the information component or EBGM.</p>';
+  html += '<p class="notice info">A PRR says the event is overrepresented among the device\'s reports. It does not give an event rate, a relative risk or a safety ranking across brands. Keep the comparison within one product code. Check for summary reporting, reports stimulated by a field action, and differences in coding practice. Set an exposure-based rate beside the ratio, or state that none exists.</p>';
+  out.innerHTML = html;
+}
+$("dp-run").addEventListener("click", dpRun);
+$("dp-clear").addEventListener("click", function(){ clearFields(dpForm); clearErr($("dp-err")); $("dp-out").innerHTML = ""; });
+$("dp-ex").addEventListener("click", function(){
+  clearErr($("dp-err"), dpForm);
+  setVals({"dp-a":"30","dp-b":"570","dp-c":"90","dp-d":"8,910","dp-rprr":"2","dp-rchi":"4","dp-rn":"3"});
+  dpRun();
+  $("dp-out").insertAdjacentHTML("afterbegin", exNote("Glucalyn, MAUDE-era extract within one product code, Year 2, month 12 (Chapter 9, Table 9.1)."));
+});
+
+/* ================= MODULE 2B: O/E ================= */
+var oeForm = $("oe-form");
+function oeRun(){
+  var out = $("oe-out"); out.innerHTML = "";
+  var v = new V($("oe-err"), oeForm);
+  var O = num(v, $("oe-o"), "Observed events", {int:true, min:0});
+  var E = num(v, $("oe-e"), "Expected events", {gt:0});
+  if (E !== undefined && E > 1e6) v.add($("oe-e"), "Expected events: enter a value of 1,000,000 or less.");
+  if (!v.show()) return;
+  var name = txt($("oe-name")) || "The device";
+  var ci = poisExactCI(O, 0.95);
+  var pUp = poisSf(O, E), pLo = poisCdf(O, E);
+  var l95 = [poisQuantile(0.025, E), poisQuantile(0.975, E)], l998 = [poisQuantile(0.001, E), poisQuantile(0.999, E)];
+  var normU = E + normInv(0.999)*Math.sqrt(E);
+  var pos, cls;
+  if (O > l998[1]){ pos = "above the 99.8% upper limit (" + l998[1] + "). An excess this large is unlikely to be chance alone."; cls = "bad"; }
+  else if (O > l95[1]){ pos = "above the 95% upper limit (" + l95[1] + ") but not above the 99.8% upper limit (" + l998[1] + "). Worth a look."; cls = "warn"; }
+  else if (O < l998[0]){ pos = "below the 99.8% lower limit (" + l998[0] + ")."; cls = "good"; }
+  else if (O < l95[0]){ pos = "below the 95% lower limit (" + l95[0] + ")."; cls = "good"; }
+  else { pos = "within the 95% limits (" + l95[0] + " to " + l95[1] + ")."; cls = "good"; }
+  var html = '<div class="kpis">' +
+    kpi("O/E (exact 95% CI)", fmt(O/E,2), rng(ci[0]/E, ci[1]/E, 2)) +
+    kpi("Exact 95% CI for O", rng(ci[0], ci[1], 1), "Poisson, observed " + fmtInt(O)) +
+    kpi("95% funnel limits at E", l95[0] + "–" + l95[1], "Exact Poisson, E = " + fmt(E, E % 1 ? 1 : 0)) +
+    kpi("99.8% funnel limits at E", l998[0] + "–" + l998[1], "Upper limit " + l998[1] + " (exact)") + '</div>';
+  html += '<p>Summary: O/E ' + fmt(O/E,2) + ' (95% CI ' + rng(ci[0]/E, ci[1]/E, 2) + '). One-sided probability of ' + fmtInt(O) + ' or more when ' + fmt(E,1) + ' are expected: ' + fmtP(pUp) + '. The probability of ' + fmtInt(O) + ' or fewer is ' + fmtP(pLo) + '.</p>';
+  html += '<p class="notice ' + cls + '"><strong>Funnel position.</strong> ' + esc(name) + ' (' + fmtInt(O) + ' observed) lies ' + esc(pos) + '</p>';
+  html += '<p>Normal approximation for the 99.8% upper limit: E + 3.09 × √E = ' + fmt(normU,1) + ', which rounds to ' + Math.round(normU) + '. Record the exact limit (' + l998[1] + '), and use the same method in every annual report.</p>';
+  html += funnelChart(O, E);
+  html += '<p class="notice info">An implant-level flag can come from a few centers or surgeons. Before you write "the device underperforms", ask for breakdowns by center, by surgeon and by reason for revision.</p>';
+  out.innerHTML = html;
+}
+function funnelChart(O, E){
+  var W = 760, H = 330, L = 56, R = 18, T = 18, B = 44;
+  var xmax = Math.max(E*2, 10), steps = 90, pts95u = [], pts998u = [], pts95l = [], pts998l = [];
+  for (var i=1;i<=steps;i++){
+    var e = xmax*i/steps;
+    pts95u.push([e, poisQuantile(0.975, e)]); pts998u.push([e, poisQuantile(0.999, e)]);
+    pts95l.push([e, poisQuantile(0.025, e)]); pts998l.push([e, poisQuantile(0.001, e)]);
+  }
+  var ymax = Math.max(O, pts998u[steps-1][1]) * 1.08;
+  var xs = function(x){ return L + x/xmax*(W-L-R); }, ys = function(y){ return T + (H-T-B) - y/ymax*(H-T-B); };
+  var s = svgOpen(W, H, "Funnel plot of observed against expected events with exact Poisson 95% and 99.8% limits");
+  s += '<rect width="' + W + '" height="' + H + '" fill="#fff"/>';
+  niceTicks(0, ymax, 5).forEach(function(t){ s += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + ys(t) + '" y2="' + ys(t) + '" stroke="#E3E8EE"/><text x="' + (L-6) + '" y="' + (ys(t)+4) + '" font-size="11" text-anchor="end" fill="#4A5566">' + t + '</text>'; });
+  niceTicks(0, xmax, 6).forEach(function(t){ s += '<text x="' + xs(t) + '" y="' + (H-B+16) + '" font-size="11" text-anchor="middle" fill="#4A5566">' + t + '</text>'; });
+  function step(pts, col, dash){ var d = pts.map(function(p,i){ return (i?'L':'M') + xs(p[0]).toFixed(1) + ' ' + ys(p[1]).toFixed(1); }).join(' '); return '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="1.6"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/>'; }
+  s += step(pts998u, "#B42318", "6 4") + step(pts998l, "#B42318", "6 4") + step(pts95u, "#A35A00", "3 3") + step(pts95l, "#A35A00", "3 3");
+  s += '<line x1="' + xs(0) + '" y1="' + ys(0) + '" x2="' + xs(xmax) + '" y2="' + ys(Math.min(xmax, ymax)) + '" stroke="#4A5566" stroke-dasharray="1 3"/>';
+  s += '<circle cx="' + xs(E) + '" cy="' + ys(O) + '" r="6.5" fill="#17375E" stroke="#fff" stroke-width="2"/>';
+  s += '<text x="' + (xs(E)+10) + '" y="' + (ys(O)+4) + '" font-size="12" font-weight="700" fill="#17375E">O = ' + O + ', E = ' + fmt(E, E % 1 ? 1 : 0) + '</text>';
+  s += '<text x="' + ((L+W-R)/2) + '" y="' + (H-8) + '" font-size="12" text-anchor="middle" fill="#1B2430">Expected events (E)</text>';
+  s += '<text x="14" y="' + ((T+H-B)/2) + '" font-size="12" text-anchor="middle" fill="#1B2430" transform="rotate(-90 14 ' + ((T+H-B)/2) + ')">Observed events</text>';
+  s += '<text x="' + (W-R-4) + '" y="' + (T+12) + '" font-size="11" text-anchor="end" fill="#B42318" font-weight="600">99.8% limits (dashed red)</text>';
+  s += '<text x="' + (W-R-4) + '" y="' + (T+27) + '" font-size="11" text-anchor="end" fill="#A35A00" font-weight="600">95% limits (dotted amber)</text>';
+  s += '</svg>';
+  return '<figure class="chart wide" tabindex="0">' + s + '<figcaption>Funnel plot with exact Poisson limits. The dotted grey line is O = E.</figcaption></figure>';
+}
+$("oe-run").addEventListener("click", oeRun);
+$("oe-clear").addEventListener("click", function(){ clearFields(oeForm); clearErr($("oe-err")); $("oe-out").innerHTML = ""; });
+$("oe-ex").addEventListener("click", function(){
+  clearErr($("oe-err"), oeForm);
+  setVals({"oe-o":"48","oe-e":"26","oe-name":"Tessora"});
+  oeRun();
+  $("oe-out").insertAdjacentHTML("afterbegin", exNote("Tessora hip, national registry annual report, Year 6 (Chapter 9, Steps 6 and 7)."));
+});
+
+/* ================= MODULE 3: KM ================= */
+var kmForm = $("km-form"), kmBody = $("km-rows"), kmSeq = 0;
+function kmAddRow(lab, n, d){
+  kmSeq++;
+  var i = kmBody.rows.length + 1, id = "km" + kmSeq;
+  var tr = document.createElement("tr");
+  tr.innerHTML = '<td><label class="sr-only" for="' + id + '-l">Interval ' + i + ' label</label><input type="text" id="' + id + '-l" data-k="l" autocomplete="off"></td>' +
+    '<td><label class="sr-only" for="' + id + '-n">Interval ' + i + ' devices at risk</label><input type="text" inputmode="numeric" id="' + id + '-n" data-k="n" autocomplete="off"></td>' +
+    '<td><label class="sr-only" for="' + id + '-d">Interval ' + i + ' failures</label><input type="text" inputmode="numeric" id="' + id + '-d" data-k="d" autocomplete="off"></td>';
+  kmBody.appendChild(tr);
+  if (lab !== undefined){ tr.querySelector('[data-k=l]').value = lab; tr.querySelector('[data-k=n]').value = n; tr.querySelector('[data-k=d]').value = d; }
+}
+function kmReset(k){ kmBody.innerHTML = ""; for (var i=0;i<k;i++) kmAddRow(); }
+kmReset(3);
+function kmRun(){
+  var out = $("km-out"); out.innerHTML = "";
+  var v = new V($("km-err"), kmForm), rows = [];
+  var trs = kmBody.rows;
+  if (!trs.length) v.add(null, "Add at least one interval.");
+  for (var i=0;i<trs.length;i++){
+    var le = trs[i].querySelector('[data-k=l]'), ne = trs[i].querySelector('[data-k=n]'), de = trs[i].querySelector('[data-k=d]');
+    var n = num(v, ne, "Interval " + (i+1) + ", devices at risk", {int:true, gt:0});
+    var d = num(v, de, "Interval " + (i+1) + ", failures", {int:true, min:0});
+    if (n !== undefined && d !== undefined && d > n) v.add(de, "Interval " + (i+1) + ": failures (" + d + ") cannot exceed devices at risk (" + n + ").");
+    rows.push({lab: txt(le) || "Interval " + (i+1), n: n, d: d});
+  }
+  if (!v.show()) return;
+  var S = 1, g = 0, z = 1.959964, trunc = false, zeroS = false;
+  rows.forEach(function(r){
+    r.h = r.d/r.n; S *= (1 - r.h); r.S = S;
+    if (r.n - r.d > 0) g += r.d/(r.n*(r.n-r.d)); else zeroS = true;
+    r.se = S*Math.sqrt(g);
+    r.lo = S - z*r.se; r.hi = S + z*r.se;
+    if (r.lo < 0 || r.hi > 1) trunc = true;
+    r.loT = Math.max(0, r.lo); r.hiT = Math.min(1, r.hi);
+  });
+  var last = rows[rows.length-1], totD = rows.reduce(function(a,r){ return a+r.d; },0);
+  var html = '<div class="kpis">' +
+    kpi("Survival at end of " + last.lab, fmt(last.S*100,1) + "%", "95% CI " + rng(last.loT*100, last.hiT*100, 1) + "%") +
+    kpi("Cumulative failure probability", fmt((1-last.S)*100,1) + "%", "1 − survival") +
+    kpi("Crude proportion", fmt(totD/rows[0].n*100,1) + "%", fmtInt(totD) + " ÷ " + fmtInt(rows[0].n) + " (failures ÷ at risk in the first interval)") +
+    kpi("Hazard, first to last interval", fmt(rows[0].h*100,2) + "% → " + fmt(last.h*100,2) + "%", rows[0].h > 0 ? fmt(last.h/rows[0].h,1) + " times" : "first-interval hazard is 0") + '</div>';
+  html += '<p>Kaplan–Meier survival at the end of ' + esc(last.lab) + ': <strong>' + fmt(last.S*100,1) + '% (95% CI ' + rng(last.loT*100, last.hiT*100, 1) + ')</strong>. ' + fmtInt(last.n) + ' devices were at risk in that interval, and the Greenwood SE is ' + fmt(last.se*100,2) + ' percentage points.</p>';
+  if (totD/rows[0].n < (1-last.S) - 1e-9) html += '<p class="notice warn">The crude proportion (' + fmt(totD/rows[0].n*100,1) + '%) understates the cumulative probability (' + fmt((1-last.S)*100,1) + '%). Devices that entered later have not yet reached the later, higher-hazard intervals. Report the Kaplan–Meier figure, and give the crude figure only to explain the difference.</p>';
+  if (zeroS) html += '<p class="notice warn">In at least one interval, every device at risk failed. Survival reaches 0 there, and the Greenwood variance cannot be calculated from that interval onward.</p>';
+  html += kmChart(rows);
+  html += '<div class="tablewrap"><table><caption class="sr-only">Life table results</caption><thead><tr><th scope="col">Interval</th><th scope="col">At risk</th><th scope="col">Failures</th><th scope="col">Hazard</th><th scope="col">Survival</th><th scope="col">Greenwood SE</th><th scope="col">95% CI</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    html += '<tr><th scope="row" style="text-align:left;font-weight:600">' + esc(r.lab) + '</th><td>' + fmtInt(r.n) + '</td><td>' + fmtInt(r.d) + '</td><td>' + fmt(r.h*100,2) + '%</td><td>' + fmt(r.S*100,2) + '%</td><td>' + fmt(r.se*100,2) + '</td><td>' + rng(r.loT*100, r.hiT*100, 2) + (r.lo < 0 || r.hi > 1 ? ' *' : '') + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  if (trunc) html += '<p class="hint">* The interval was truncated at 0% or 100%.</p>';
+  html += '<p class="hint">Censored devices leave the risk set, so enter the at-risk count for each interval as observed. Two failure mechanisms pooled together hide each other, so stratify by failure location or mode before naming a pattern. The tail of the curve rests on fewer devices, so state the number at risk at every point.</p>';
+  out.innerHTML = html;
+}
+function kmChart(rows){
+  var W = 760, H = 380, L = 60, R = 18, T = 22, P1 = 200, G = 40, P2 = 70;
+  var n = rows.length;
+  var minY = Math.min.apply(null, rows.map(function(r){ return r.loT; }));
+  var ylo = Math.max(0, Math.floor((minY - (1-minY)*0.15)*1000)/1000); if (ylo > 0.999) ylo = 0.99;
+  var xs = function(i){ return L + i/n*(W-L-R); };
+  var ys = function(v){ return T + P1 - (v-ylo)/(1-ylo)*P1; };
+  var hmax = Math.max.apply(null, rows.map(function(r){ return r.h; })) * 1.15 || 0.01;
+  var T2 = T + P1 + G, ys2 = function(v){ return T2 + P2 - v/hmax*P2; };
+  var s = svgOpen(W, H, "Kaplan-Meier survival step curve with 95% confidence band, and hazard by interval");
+  s += '<rect width="' + W + '" height="' + H + '" fill="#fff"/>';
+  niceTicks(ylo*100, 100, 4).forEach(function(t){ var y = ys(t/100); s += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + y + '" y2="' + y + '" stroke="#E3E8EE"/><text x="' + (L-6) + '" y="' + (y+4) + '" font-size="11" text-anchor="end" fill="#4A5566">' + t + '%</text>'; });
+  var prevS = 1, d = 'M' + xs(0) + ' ' + ys(1);
+  rows.forEach(function(r,i){ d += ' L' + xs(i+1) + ' ' + ys(prevS) + ' L' + xs(i+1) + ' ' + ys(r.S); prevS = r.S; });
+  var up = '', dn = '';
+  rows.forEach(function(r,i){ var x1 = xs(i+1), x2 = xs(Math.min(i+2, n)); up += (i?' L':'M') + x1 + ' ' + ys(r.hiT) + ' L' + (i === n-1 ? x1+6 : x2) + ' ' + ys(r.hiT); });
+  for (var j=n-1;j>=0;j--){ var r = rows[j], x1 = xs(j+1), x2 = xs(Math.min(j+2, n)); dn += ' L' + (j === n-1 ? x1+6 : x2) + ' ' + ys(r.loT) + ' L' + x1 + ' ' + ys(r.loT); }
+  s += '<path d="' + up + dn + ' Z" fill="#0E7490" opacity="0.15"/>';
+  s += '<path d="' + d + '" fill="none" stroke="#17375E" stroke-width="2.4"/>';
+  rows.forEach(function(r,i){ s += '<circle cx="' + xs(i+1) + '" cy="' + ys(r.S) + '" r="3.5" fill="#17375E"/>'; });
+  s += '<text x="' + L + '" y="' + (T-8) + '" font-size="12" font-weight="700" fill="#17375E">Survival (step curve) with 95% CI band</text>';
+  s += '<text x="' + L + '" y="' + (T2-8) + '" font-size="12" font-weight="700" fill="#0E7490">Hazard in each interval</text>';
+  niceTicks(0, hmax*100, 2).forEach(function(t){ var y = ys2(t/100); s += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + y + '" y2="' + y + '" stroke="#E3E8EE"/><text x="' + (L-6) + '" y="' + (y+4) + '" font-size="11" text-anchor="end" fill="#4A5566">' + t + '%</text>'; });
+  var bw = (W-L-R)/n*0.6;
+  rows.forEach(function(r,i){ var cx = (xs(i)+xs(i+1))/2, y = ys2(r.h); s += '<rect x="' + (cx-bw/2) + '" y="' + y + '" width="' + bw + '" height="' + (T2+P2-y) + '" fill="#0E7490"/>' +
+    '<text x="' + cx + '" y="' + (T2+P2+16) + '" font-size="11" text-anchor="middle" fill="#4A5566">' + esc(r.lab.length > 12 ? r.lab.slice(0,12) + '…' : r.lab) + '</text>'; });
+  s += '</svg>';
+  return '<figure class="chart wide" tabindex="0">' + s + '<figcaption>Kaplan–Meier survival across the intervals, with the Greenwood 95% band (top), and the hazard in each interval (bottom).</figcaption></figure>';
+}
+$("km-add").addEventListener("click", function(){ kmAddRow(); kmBody.rows[kmBody.rows.length-1].querySelector("input").focus(); });
+$("km-del").addEventListener("click", function(){ if (kmBody.rows.length > 1) kmBody.deleteRow(-1); });
+$("km-run").addEventListener("click", kmRun);
+$("km-clear").addEventListener("click", function(){ kmReset(3); clearErr($("km-err")); $("km-out").innerHTML = ""; });
+$("km-ex").addEventListener("click", function(){
+  clearErr($("km-err"), kmForm);
+  kmBody.innerHTML = "";
+  [["Year 1",4000,3],["Year 2",4000,4],["Year 3",3200,5],["Year 4",2400,14],["Year 5",1600,22]].forEach(function(r){ kmAddRow(r[0], r[1], r[2]); });
+  kmRun();
+  $("km-out").insertAdjacentHTML("afterbegin", exNote("Kestran defibrillator lead, tracked cohort of 4,000, data cut at the end of Year 6 (Chapter 10, Table 10.1)."));
+});
+
+/* ================= MODULE 4: PRIORITIZATION ================= */
+var DOMS = [
+  {k:"S", name:"Severity (risk-file scale)", note:"Score the worst credible harm, not the worst harm reported so far.",
+   a:["Negligible: no injury, or temporary discomfort","Between 1 and 3","Serious: injury needing medical intervention","Between 3 and 5","Catastrophic: death or life-threatening injury is credible"]},
+  {k:"P", name:"Probability change", note:"How far the post-market estimate of harm has moved from the risk-file estimate, and whether it is still moving.",
+   a:["Within the risk-file estimate","Between 1 and 3","Estimate exceeded, up to fivefold","Fivefold or more; trend stable or unknown","Fivefold or more and rising over consecutive periods"]},
+  {k:"E", name:"Exposure", note:"Devices in use, implanted base or procedures for the affected model, version or lot, and whether the affected configuration still ships.",
+   a:["Fewer than 1,000 units in use; not shipping","Between 1 and 3","1,000 to 10,000 units in use","10,001 to 100,000 units in use; affected configuration still distributed","More than 100,000 units, or an implanted base that cannot be recalled"]},
+  {k:"D", name:"Detectability (high score = hard to detect)", note:"Can the user or patient recognize the failure before harm occurs, and does a mitigation exist today?",
+   a:["Failure is obvious before use","Between 1 and 3","Detected by an alarm or a routine check, not always in time","Between 3 and 5","Silent until harm; no alarm or cue"]},
+  {k:"U", name:"Vulnerability", note:"Who is exposed and where: life-sustaining therapy, lay users at home, and populations that cannot rescue themselves.",
+   a:["Trained professional users; low-risk population","Between 1 and 3","Professional users in a high-acuity setting","Between 3 and 5","Population cannot self-rescue: neonates, young children, sedated patients"]}
+];
+var TRIGS = ["A death possibly linked to the device","An enquiry from a competent authority or FDA","A competitor FSCA for the same mechanism","Media attention","Bench reproduction of a hazardous failure with no available mitigation"];
+(function buildPrio(){
+  var h = "";
+  DOMS.forEach(function(d){
+    h += '<fieldset class="domain" id="pr-fs-' + d.k + '"><legend>' + esc(d.name) + '</legend><p class="hint" style="margin:0 0 6px">' + esc(d.note) + '</p><div class="radios">';
+    d.a.forEach(function(t, i){ h += '<label><input type="radio" name="pr-' + d.k + '" value="' + (i+1) + '"><span><b>' + (i+1) + '</b> ' + esc(t) + '</span></label>'; });
+    h += '</div><div class="field" style="margin-top:8px"><label for="pr-r-' + d.k + '">Rationale for this score (required)</label><input type="text" id="pr-r-' + d.k + '" autocomplete="off"></div></fieldset>';
+  });
+  $("pr-domains").innerHTML = h;
+  $("pr-trig").innerHTML = TRIGS.map(function(t, i){ return '<label><input type="checkbox" id="pr-t' + i + '" value="' + i + '"><span>' + esc(t) + '</span></label>'; }).join("");
+})();
+var prForm = $("pr-form");
+var BANDS = {A:{r:"20 to 25", t:"The board convenes within 5 working days and records an action decision within 15 calendar days."},
+             B:{r:"14 to 19", t:"Assessment plan within 30 days; decision within 90 days."},
+             C:{r:"5 to 13", t:"Review at the next scheduled trend meeting."}};
+function bandOf(t){ return t >= 20 ? "A" : (t >= 14 ? "B" : "C"); }
+function higher(a, b){ return a < b ? a : b; } /* "A" < "B" */
+function prRun(){
+  var out = $("pr-out"); out.innerHTML = "";
+  var v = new V($("pr-err"), prForm), sc = {};
+  DOMS.forEach(function(d){
+    var sel = prForm.querySelector('input[name="pr-' + d.k + '"]:checked');
+    var fs = $("pr-fs-" + d.k);
+    if (!sel){ v.add(fs.querySelector("input"), d.name + ": choose a score from 1 to 5."); fs.setAttribute("aria-invalid","true"); }
+    else sc[d.k] = Number(sel.value);
+    var r = $("pr-r-" + d.k); if (txt(r) === "") v.add(r, d.name + ": write the rationale for the score.");
+  });
+  var ovSel = prForm.querySelector('input[name="pr-ov"]:checked');
+  if (!ovSel) v.add(prForm.querySelector('input[name="pr-ov"]'), "Board override: choose No override, Up one band or Down one band.");
+  var ov = ovSel ? ovSel.value : null;
+  if (ov && ov !== "none" && txt($("pr-ovr")) === "") v.add($("pr-ovr"), "Override reason: a written reason is required for any band change.");
+  if (ov === "down" && txt($("pr-chair")) === "") v.add($("pr-chair"), "Chair signature: a downward override needs the chair's signature or initials.");
+  if (!v.show()) return;
+  var total = sc.S + sc.P + sc.E + sc.D + sc.U;
+  var byScore = bandOf(total), band = byScore, steps = [];
+  var floor = sc.S === 5 && sc.D >= 4;
+  if (floor){
+    if (byScore === "C"){ band = "B"; steps.push("Floor rule applied: severity 5 with detectability " + sc.D + " raises the band from C to B."); }
+    else steps.push("Floor rule applies (severity 5 with detectability " + sc.D + ": Band B minimum). The score already meets it.");
+  } else steps.push("Floor rule does not apply (it needs severity 5 with detectability 4 or 5).");
+  var trig = TRIGS.filter(function(t, i){ return $("pr-t" + i).checked; });
+  if (trig.length){
+    if (band !== "A") steps.push("Urgency trigger present (" + trig.join("; ") + "): the band is raised from " + band + " to A.");
+    else steps.push("Urgency trigger recorded (" + trig.join("; ") + "). The signal is already in Band A.");
+    band = "A";
+  } else steps.push("No urgency trigger recorded.");
+  var ruleBand = band, warn = "";
+  if (ov === "up"){
+    if (band === "A") steps.push("Upward override requested, but the signal is already in Band A, the highest band. The band is unchanged. Reason recorded: " + txt($("pr-ovr")));
+    else { band = band === "C" ? "B" : "A"; steps.push("Upward override: " + ruleBand + " → " + band + ". Reason: " + txt($("pr-ovr"))); }
+  } else if (ov === "down"){
+    if (band === "C") steps.push("Downward override requested, but the signal is already in Band C, the lowest band. The band is unchanged.");
+    else {
+      band = band === "A" ? "B" : "C";
+      steps.push("Downward override: " + ruleBand + " → " + band + ". Reason: " + txt($("pr-ovr")) + ". Chair: " + txt($("pr-chair")) + ".");
+      if ((floor && band === "C") || trig.length) warn = "This downward override places the signal below a rule-based minimum (" + (trig.length ? "urgency trigger: Band A" : "floor rule: Band B") + "). An inspector will ask about this. Make sure the written reason addresses the rule directly.";
+    }
+  } else steps.push("No override" + (txt($("pr-ovr")) ? ". Note: " + txt($("pr-ovr")) : "") + ".");
+  var margin = byScore === "A" ? total - 20 : (byScore === "B" ? total - 14 : null);
+  var sens = margin === null ? "Band C is the lowest band by score." :
+    "The band by score (" + byScore + ") holds unless the scores drop by a combined " + (margin + 1) + " point" + (margin ? "s" : "") + ". Check whether any disputed domain could move that far.";
+  var html = '<div class="kpis">' +
+    kpi("Total score", total + " of 25", "S " + sc.S + " · P " + sc.P + " · E " + sc.E + " · D " + sc.D + " · V " + sc.U) +
+    kpi("Band by score", "Band " + byScore, BANDS[byScore].r) +
+    kpi("Final band", "Band " + band, esc(BANDS[band].t)) + '</div>';
+  html += '<p class="notice ' + (band === "A" ? "bad" : band === "B" ? "warn" : "good") + '"><strong>' + total + ' of 25; Band ' + band + '.</strong> Response time (company example): ' + esc(BANDS[band].t) + ' Legal reporting clocks run separately, and a band never extends them.</p>';
+  if (warn) html += '<p class="notice warn">' + esc(warn) + '</p>';
+  html += '<ul>' + steps.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join("") + '</ul>';
+  html += '<p><strong>Sensitivity check.</strong> ' + esc(sens) + '</p>';
+  html += prProfile(sc);
+  html += '<div class="tablewrap"><table><caption class="sr-only">Scores and rationales</caption><thead><tr><th scope="col">Domain</th><th scope="col">Score</th><th scope="col" class="l">Rationale recorded</th></tr></thead><tbody>';
+  DOMS.forEach(function(d){ html += '<tr><th scope="row" style="text-align:left;font-weight:600">' + esc(d.name.replace(/ \(.*\)/,"")) + '</th><td>' + sc[d.k] + '</td><td class="l">' + esc(txt($("pr-r-" + d.k))) + '</td></tr>'; });
+  html += '</tbody></table></div>';
+  if (txt($("pr-sig")) || txt($("pr-rf"))) html += '<p class="hint">Signal: ' + esc(txt($("pr-sig")) || "not stated") + '. Risk-file entry: ' + esc(txt($("pr-rf")) || "not stated") + '.</p>';
+  html += '<p class="hint">A score is a snapshot. Re-score whenever the data change, for example after an interim instruction changes detectability, and keep each re-score on the record.</p>';
+  out.innerHTML = html;
+}
+function prProfile(sc){
+  var W = 560, H = 190, L = 170, R = 40, T = 10, row = 34;
+  var s = svgOpen(W, H, "Prioritization profile: score by domain");
+  s += '<rect width="' + W + '" height="' + H + '" fill="#fff"/>';
+  for (var t=1;t<=5;t++){ var x = L + t/5*(W-L-R); s += '<line x1="' + x + '" x2="' + x + '" y1="' + T + '" y2="' + (T+row*5) + '" stroke="#E3E8EE"/><text x="' + x + '" y="' + (T+row*5+14) + '" font-size="11" text-anchor="middle" fill="#4A5566">' + t + '</text>'; }
+  DOMS.forEach(function(d, i){
+    var y = T + i*row + 6, w = sc[d.k]/5*(W-L-R);
+    s += '<text x="' + (L-8) + '" y="' + (y+15) + '" font-size="12" text-anchor="end" fill="#1B2430">' + esc(d.name.replace(/ \(.*\)/,"")) + '</text>';
+    s += '<rect x="' + L + '" y="' + y + '" width="' + w + '" height="22" rx="3" fill="' + (sc[d.k] >= 4 ? '#17375E' : '#0E7490') + '"/>';
+    s += '<text x="' + (L+w+6) + '" y="' + (y+15) + '" font-size="12" font-weight="700" fill="#17375E">' + sc[d.k] + '</text>';
+  });
+  s += '</svg>';
+  return '<figure class="chart wide" tabindex="0" style="max-width:600px">' + s + '<figcaption>Profile across the five domains. A total can hide extremes, which is why the floor rule exists.</figcaption></figure>';
+}
+$("pr-run").addEventListener("click", prRun);
+$("pr-clear").addEventListener("click", function(){ clearFields(prForm); DOMS.forEach(function(d){ $("pr-fs-" + d.k).removeAttribute("aria-invalid"); }); clearErr($("pr-err")); $("pr-out").innerHTML = ""; });
+$("pr-ex").addEventListener("click", function(){
+  clearFields(prForm); clearErr($("pr-err"), prForm);
+  DOMS.forEach(function(d){ $("pr-fs-" + d.k).removeAttribute("aria-invalid"); });
+  var ex = {S:[5,"Severe hypoglycemia; death credible"], P:[4,"1 in 2,000 vs 1 in 20,000 pump-years; one window only"],
+            E:[4,"24,000 pumps on v3.2; version still being installed"], D:[5,"Over-delivery silent until hypoglycemia"],
+            U:[4,"Home use by lay users; not a self-rescue-limited population"]};
+  DOMS.forEach(function(d){ prForm.querySelector('input[name="pr-' + d.k + '"][value="' + ex[d.k][0] + '"]').checked = true; $("pr-r-" + d.k).value = ex[d.k][1]; });
+  prForm.querySelector('input[name="pr-ov"][value="none"]').checked = true;
+  setVals({"pr-sig":"Glucalyn over-delivery on software v3.2; data cut A, Year 2, month 9 (day 3)",
+           "pr-rf":"Hazard: over-delivery of insulin; severity scale as in the risk file",
+           "pr-ovr":"Band A by score; chair initials recorded"});
+  prRun();
+  $("pr-out").insertAdjacentHTML("afterbegin", exNote("Glucalyn insulin pump at data cut A, scored on day 3 (Chapter 13, Tables 13.2 and 13.3)."));
+});
+
+/* ================= MODULE 5: RISK MATRIX ================= */
+var SEV = [["S1","Negligible","Inconvenience or temporary discomfort; no intervention"],["S2","Minor","Temporary injury managed by the user or patient"],
+  ["S3","Serious","Injury needing professional medical intervention; reversible"],["S4","Critical","Life-threatening injury, third-party rescue, hospitalization or permanent impairment"],["S5","Catastrophic","Death"]];
+var PB = [["P5","Frequent","1 in 1,000 or more"],["P4","Probable","1 in 10,000 to less than 1 in 1,000"],["P3","Occasional","1 in 100,000 to less than 1 in 10,000"],
+  ["P2","Remote","1 in 1,000,000 to less than 1 in 100,000"],["P1","Improbable","Less than 1 in 1,000,000"]];
+/* REGION[p][s]  p: 1..5, s: 1..5 */
+var REG = {5:["alarp","alarp","unacc","unacc","unacc"], 4:["acc","alarp","alarp","unacc","unacc"], 3:["acc","acc","alarp","alarp","unacc"],
+           2:["acc","acc","acc","alarp","alarp"], 1:["acc","acc","acc","acc","alarp"]};
+var REGNAME = {acc:"Acceptable", alarp:"ALARP region", unacc:"Unacceptable"};
+function pBand(p){ if (p >= 1e-3 - 1e-15) return 5; if (p >= 1e-4 - 1e-16) return 4; if (p >= 1e-5 - 1e-17) return 3; if (p >= 1e-6 - 1e-18) return 2; return 1; }
+function oneIn(p){ return p > 0 ? "1 in " + sig3(1/p) : "0"; }
+["rk-bs","rk-as","rk-ts"].forEach(function(id){
+  $(id).innerHTML = '<option value="">Choose…</option>' + SEV.map(function(s, i){ return '<option value="' + (i+1) + '">' + s[0] + ' ' + s[1] + ': ' + esc(s[2]) + '</option>'; }).join("");
+});
+var rkForm = $("rk-form");
+function rkRun(){
+  var out = $("rk-out"); out.innerHTML = "";
+  var v = new V($("rk-err"), rkForm);
+  var bn = num(v, $("rk-bn"), "Before: N in 1 in N", {min:1});
+  var bs = $("rk-bs").value; if (!bs) v.add($("rk-bs"), "Before: choose a severity.");
+  var ae = num(v, $("rk-ae"), "After: harm events", {int:true, min:0});
+  var ax = num(v, $("rk-ax"), "After: exposure", {gt:0});
+  var ah = num(v, $("rk-ah"), "After: hazardous-situation events", {optional:true, int:true, min:0});
+  var as = $("rk-as").value; if (!as) v.add($("rk-as"), "After: choose a severity.");
+  var tn = num(v, $("rk-tn"), "Target: N in 1 in N", {optional:true, min:1});
+  var ts = $("rk-ts").value;
+  if (tn !== null && tn !== undefined && !ts) v.add($("rk-ts"), "Target: choose the severity after controls, or clear the target.");
+  if (ts && txt($("rk-tn")) === "") v.add($("rk-tn"), "Target: enter N, or set the target severity back to Choose….");
+  if (ah !== null && ah !== undefined && ae !== undefined && ae > ah) v.add($("rk-ah"), "Hazardous-situation events (" + ah + ") cannot be fewer than harm events (" + ae + ").");
+  if (ah === 0) v.add($("rk-ah"), "Hazardous-situation events must be above 0 to split P1 and P2. Leave the field empty to skip the split.");
+  if (!v.show()) return;
+  var unit = txt($("rk-unit")) || "unit-years";
+  bs = Number(bs); as = Number(as);
+  var pb = 1/bn, pa = ae/ax, ci = poisExactCI(ae, 0.95), plo = ci[0]/ax, phi = ci[1]/ax;
+  var bB = pBand(pb), bA = pBand(pa), bLo = pBand(plo), bHi = pBand(phi);
+  var rB = REG[bB][bs-1], rA = REG[bA][as-1], rLo = REG[bLo][as-1], rHi = REG[bHi][as-1];
+  var html = '<div class="kpis">' +
+    kpi("Before the signal", oneIn(pb), "P" + bB + " × S" + bs + " → " + REGNAME[rB]) +
+    kpi("After the signal", oneIn(pa), ae + " ÷ " + fmtInt(ax) + " " + esc(unit) + "; P" + bA + " × S" + as + " → " + REGNAME[rA]) +
+    kpi("Exact 95% CI (events)", rng(ci[0], ci[1], 1), (ae === 0 ? "0 events: upper bound " + oneIn(phi) : oneIn(plo) + " to " + oneIn(phi)) + " " + esc(unit)) +
+    (ae > 0 && pb > 0 ? kpi("Change from risk file", fmt(pa/pb, pa/pb >= 10 ? 0 : 1) + "×", "post-market ÷ risk-file probability") : "") + '</div>';
+  html += '<p class="notice ' + (rA === "unacc" ? "bad" : rA === "alarp" ? "warn" : "good") + '"><strong>Region: ' + REGNAME[rB] + ' (before) → ' + REGNAME[rA] + ' (after).</strong> ' +
+    (rLo === rHi ? 'The region is the same (' + REGNAME[rLo] + ') at both ends of the 95% interval (P' + bLo + ' to P' + bHi + '), so the evaluation does not depend on where the true value lies within it.' :
+      'The region changes across the 95% interval (P' + bLo + ' × S' + as + ' is ' + REGNAME[rLo] + '; P' + bHi + ' × S' + as + ' is ' + REGNAME[rHi] + '). The evaluation depends on where the true value lies, so address the whole interval in writing.') + '</p>';
+  if (ah !== null && ah !== undefined){
+    var p1 = ah/ax, p2 = ae/ah;
+    html += '<p><strong>P1 and P2.</strong> P1 (hazardous situation) = ' + ah + ' ÷ ' + fmtInt(ax) + ' = ' + fmt(p1*1000,2) + ' per 1,000 ' + esc(unit) + ' (' + oneIn(p1) + '). P2 (harm, given the situation) = ' + ae + ' ÷ ' + ah + ' = ' + (ae ? '1 in ' + sig3(1/p2) : '0') + '. P1 × P2 = ' + oneIn(p1*p2) + '. For a silent failure, P1 from complaints is a floor and P2 is probably overstated, so the product is the more reliable figure.</p>';
+  }
+  if (bB === bA && bs === as && pa/pb >= 2) html += '<p class="notice warn">The risk stays in the same cell, but the probability has risen ' + fmt(pa/pb,1) + '-fold. The old ALARP justification assumed the old frequency, so redo it.</p>';
+  if (as !== bs) html += '<p class="notice info">Severity changed from S' + bs + ' to S' + as + '. Record the reasoning, and record the new sequence of events and the affected versions, lots or sizes along with the new probability.</p>';
+  var tB = null, rT = null;
+  if (tn !== null && tn !== undefined){
+    tB = pBand(1/tn); ts = Number(ts); rT = REG[tB][ts-1];
+    html += '<p class="notice info"><strong>Target (verification target, not a measured result): ' + oneIn(1/tn) + ' ' + esc(unit) + ' or better, P' + tB + ' × S' + ts + ' → ' + REGNAME[rT] + '.</strong> Record it as achieved only after verification shows it. By the rule of three, confirming it from field data with zero events would take about ' + fmtInt(3*tn) + ' ' + esc(unit) + '.</p>';
+  }
+  html += matrixHTML([{p:bB, s:bs, cls:"", t:"B"}, {p:bA, s:as, cls:"after", t:"A"}].concat(tB ? [{p:tB, s:Number(ts), cls:"target", t:"T"}] : []));
+  html += '<div class="legend"><span><span class="mk">B</span> Before the signal</span><span><span class="mk after">A</span> After the signal</span>' + (tB ? '<span><span class="mk target">T</span> Target (not yet verified)</span>' : '') +
+    '<span><span class="sw" style="background:var(--acc)"></span>Acceptable</span><span><span class="sw" style="background:var(--alarp)"></span>ALARP region</span><span><span class="sw" style="background:var(--unacc)"></span>Unacceptable</span></div>';
+  html += '<p class="hint">Company policy in the book\'s example: information for safety, such as a field safety notice, earns no reduction in probability unless evidence shows that users follow it. Use the exposure of the affected population only. Dividing by whole-fleet exposure dilutes a version-specific fault.</p>';
+  out.innerHTML = html;
+}
+function matrixHTML(marks){
+  var h = '<div class="tablewrap" style="border:0"><table class="matrix"><caption class="sr-only">Illustrative 5 by 5 risk matrix with markers for before, after and target positions</caption><thead><tr><th scope="col">Probability band (per unit-year)</th>';
+  SEV.forEach(function(s){ h += '<th scope="col">' + s[0] + '<br>' + s[1] + '</th>'; });
+  h += '</tr></thead><tbody>';
+  PB.forEach(function(p){
+    var pn = Number(p[0].slice(1));
+    h += '<tr><th scope="row" style="text-align:left">' + p[0] + ' ' + p[1] + '<br><span class="hint">' + p[2] + '</span></th>';
+    for (var s=1;s<=5;s++){
+      var reg = REG[pn][s-1], mk = marks.filter(function(m){ return m.p === pn && m.s === s; });
+      h += '<td class="' + reg + '"><span class="sr-only">' + REGNAME[reg] + '</span>' +
+        (mk.length ? mk.map(function(m){ return '<span class="mk ' + m.cls + '" title="' + (m.t === "B" ? "Before" : m.t === "A" ? "After" : "Target") + '">' + m.t + '</span>'; }).join("") : '<span aria-hidden="true" style="opacity:.75">' + (reg === "acc" ? "Acc." : reg === "alarp" ? "ALARP" : "Unacc.") + '</span>') + '</td>';
+    }
+    h += '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+$("rk-run").addEventListener("click", rkRun);
+$("rk-clear").addEventListener("click", function(){ clearFields(rkForm); clearErr($("rk-err")); $("rk-out").innerHTML = ""; });
+$("rk-ex").addEventListener("click", function(){
+  clearErr($("rk-err"), rkForm);
+  setVals({"rk-unit":"pump-years","rk-bn":"20,000","rk-bs":"4","rk-ae":"6","rk-ax":"12,000","rk-ah":"36","rk-as":"4","rk-tn":"200,000","rk-ts":"4"});
+  rkRun();
+  $("rk-out").insertAdjacentHTML("afterbegin", exNote("Glucalyn over-delivery on software v3.2, data cut A, Year 2, month 9 (Chapter 18, Steps 2 to 7)."));
+});
+
+/* ================= MODULE 6: DECISION RECORD ================= */
+var drForm = $("dr-form");
+var CON = {notreached:"Not reached: assessment ongoing", confirmed:"Confirmed", refuted:"Refuted", indeterminate:"Indeterminate", na:"Not applicable: alert not validated"};
+var ST = {"open-val":"Open: validation","open-ass":"Open: under assessment","open-act":"Open: actions in progress","open-eff":"Open: effectiveness check pending","closed":"Closed (administrative)"};
+var VAL = {pending:"Validation not yet decided", validated:"Validated", notvalidated:"Not validated"};
+function drClearOutput(msg){
+  var had = $("dr-output").innerHTML !== "";
+  $("dr-output").innerHTML = ""; $("dr-print").disabled = true; document.body.classList.remove("print-record");
+  if (had) $("dr-status").textContent = msg || "";
+  else if (!msg) $("dr-status").textContent = "";
+}
+function drRun(){
+  drClearOutput();
+  var v = new V($("dr-err"), drForm);
+  var req = [["dr-id","Record ID"],["dr-prod","Device, model, version or lot"],["dr-cut","Data cut"],["dr-dec","Decision and scope"],["dr-rat","Rationale"],["dr-by","Decided by"],["dr-date","Decision date"]];
+  req.forEach(function(r){ if (txt($(r[0])) === "") v.add($(r[0]), r[1] + ": this field is required."); });
+  var val = $("dr-val").value, con = $("dr-con").value, st = $("dr-st").value;
+  if (!val) v.add($("dr-val"), "Validation: choose an option.");
+  if (!con) v.add($("dr-con"), "Conclusion: choose an option.");
+  if (!st) v.add($("dr-st"), "Status: choose an option.");
+  if (val && con){
+    if (val === "notvalidated" && con !== "na") v.add($("dr-con"), "Conclusion: an alert that was not validated was never assessed, so choose \"Not applicable: alert not validated\".");
+    if (val === "validated" && con === "na") v.add($("dr-con"), "Conclusion: a validated signal needs an assessment finding (not reached, confirmed, refuted or indeterminate).");
+    if (val === "pending" && con !== "notreached") v.add($("dr-con"), "Conclusion: validation is still open, so no conclusion can be recorded yet. Choose \"Not reached\".");
+  }
+  if (st === "closed"){
+    if (con === "notreached") v.add($("dr-st"), "Status: a record cannot be closed while the assessment has not reached a conclusion. \"Closed\" is a status, not a finding.");
+    if (val === "pending") v.add($("dr-st"), "Status: a record cannot be closed while validation is undecided.");
+    if (txt($("dr-trg")) === "") v.add($("dr-trg"), "Reopening triggers: a closed record needs at least one objective reopening trigger.");
+    else if (/concerns?\s+arise|if\s+needed|as\s+appropriate/i.test(txt($("dr-trg")))) v.add($("dr-trg"), "Reopening triggers: \"" + txt($("dr-trg")).slice(0,60) + "\" is not objective. State a condition anyone can check, such as \"any month above 3σ\".");
+  }
+  if (st === "open-val" && val && val !== "pending") v.add($("dr-st"), "Status: \"Open: validation\" conflicts with a validation decision that has already been made.");
+  if (val === "notvalidated" && st && st !== "closed") v.add($("dr-st"), "Status: an alert that was not validated is normally closed, with a rationale and reopening triggers. Choose \"Closed (administrative)\", or change the validation decision.");
+  if (!v.show()) return;
+  var f = function(id){ var t = txt($(id)); return t ? esc(t) : '<span style="color:#8A2A1F">Not recorded</span>'; };
+  var conDef = {notreached:"The assessment is still under way. There is no finding yet.", confirmed:"The assessment supports the hazard, or the change in probability or severity.", refuted:"The assessment does not support the signal.", indeterminate:"The evidence does not allow a conclusion either way. State what would resolve it.", na:"The alert did not meet validation, so it was not assessed."}[con];
+  var stDef = st === "closed" ? "Work has stopped. This is not a finding. Reopening triggers apply." : "Work continues. This describes where the record is, not what was found.";
+  var h = '<article class="record" aria-labelledby="dr-rec-h">' +
+    '<h3 id="dr-rec-h">Signal decision record: ' + esc(txt($("dr-id"))) + '</h3>' +
+    '<p class="meta">' + esc(txt($("dr-prod"))) + ' · Data cut: ' + esc(txt($("dr-cut"))) + ' · Decision date: ' + esc(txt($("dr-date"))) + '</p>' +
+    '<div class="pair"><div class="box"><div class="k">Conclusion (assessment finding)</div><div class="v">' + esc(CON[con]) + '</div><div class="d">' + esc(conDef) + '</div></div>' +
+    '<div class="box status"><div class="k">Status (administrative)</div><div class="v">' + esc(ST[st]) + '</div><div class="d">' + esc(stDef) + '</div></div></div>' +
+    '<dl>' +
+    '<dt>Signal</dt><dd>' + f("dr-sig") + '</dd>' +
+    '<dt>Validation</dt><dd>' + esc(VAL[val]) + '</dd>' +
+    '<dt>Conclusion statement</dt><dd>' + f("dr-cons") + '</dd>' +
+    '<dt>Source and method</dt><dd>' + f("dr-src") + '</dd>' +
+    '<dt>Threshold, denominator, expected count, PMS plan version</dt><dd>' + f("dr-thr") + '</dd>' +
+    '<dt>Result</dt><dd>' + f("dr-res") + '</dd>' +
+    '<dt>Evidence and case series</dt><dd>' + f("dr-ev") + '</dd>' +
+    '<dt>Harm and exposure</dt><dd>' + f("dr-harm") + '</dd>' +
+    '<dt>Decision and scope</dt><dd>' + f("dr-dec") + '</dd>' +
+    '<dt>Options rejected, with reasons</dt><dd>' + f("dr-rej") + '</dd>' +
+    '<dt>Rationale</dt><dd>' + f("dr-rat") + '</dd>' +
+    '<dt>Effectiveness criteria and review</dt><dd>' + f("dr-eff") + '</dd>' +
+    '<dt>Regulatory notifications</dt><dd>' + f("dr-reg") + '</dd>' +
+    '<dt>Linked records</dt><dd>' + f("dr-links") + '</dd>' +
+    '<dt>Dissent</dt><dd>' + f("dr-dis") + '</dd>' +
+    '<dt>Reopening triggers</dt><dd>' + f("dr-trg") + '</dd>' +
+    '<dt>Decided by</dt><dd>' + f("dr-by") + '</dd>' +
+    '</dl>' +
+    '<div class="sig"><div>Signature of decision-maker and date</div><div>Quality review: signature and date</div></div>' +
+    '<p class="foot">Generated with the companion web tool for <em>Signal Management in Medical Device Vigilance</em> (educational). This page is not a controlled quality record. Transfer it into your document-controlled system, where entries are time-stamped and audit-trailed. Later additions are new, dated entries, and earlier text is never replaced. Fields marked "Not recorded" were left empty.</p>' +
+    '</article>';
+  $("dr-output").innerHTML = h;
+  $("dr-print").disabled = false;
+  document.body.classList.add("print-record");
+  $("dr-status").textContent = "Record generated. Use Print record to print it.";
+}
+$("dr-run").addEventListener("click", drRun);
+$("dr-print").addEventListener("click", function(){ if ($("dr-output").innerHTML !== ""){ document.body.classList.add("print-record"); window.print(); } });
+drForm.addEventListener("input", function(){ drClearOutput("The inputs changed, so the record was cleared. Generate it again before printing."); });
+drForm.addEventListener("change", function(){ drClearOutput("The inputs changed, so the record was cleared. Generate it again before printing."); });
+$("dr-clear").addEventListener("click", function(){ clearFields(drForm); clearErr($("dr-err")); drClearOutput(); });
+$("dr-ex").addEventListener("click", function(){
+  clearErr($("dr-err"), drForm);
+  setVals({
+    "dr-id":"[Signal record ID]",
+    "dr-prod":"Suturex circular stapler, single-use cartridge; lots SX-2310 onward",
+    "dr-sig":"Cartridge misfire (labeled malfunction) with a new severity: anastomotic leak needing reoperation",
+    "dr-cut":"Year 4, month 4",
+    "dr-src":"Complaint database, misfire code; Shewhart p-chart with the 2-of-3 run rule, and CUSUM (k = 0.5, h = 4)",
+    "dr-thr":"50,000 units a month; baseline 0.40 per 1,000; 20 expected. 2σ limit 28.9; 3σ limit 33.4. Reporting triggers: one point beyond 3σ, or 2 of 3 consecutive points beyond 2σ. PMS plan [version]",
+    "dr-res":"Year 4, month 4: 36 misfires (0.72 per 1,000; 1.8 times baseline), beyond 3σ. Months 3 and 4 both beyond 2σ. Both triggers met. Article 88 trend report filed",
+    "dr-val":"validated",
+    "dr-con":"confirmed",
+    "dr-cons":"Confirmed, supplier-related: the anvil-spring supplier change affects cartridge lots from SX-2310",
+    "dr-ev":"212 complaint records → 180 unique events. 96 devices returned (53%) → 61 confirmed misfires, 35 no fault found. 44 of the 61 confirmed misfires come from lots SX-2310 onward. 84 events had no returned device",
+    "dr-harm":"9 anastomotic leaks needing reoperation among 180 events; no deaths. 50,000 units sold a month",
+    "dr-dec":"FSCA and recall of cartridge lots SX-2310 to SX-2404. Field safety notice to surgical teams (all consignees of those lots). Supplier change reversed. CAPA on supplier qualification and incoming inspection. Risk-file severity for misfire raised to include anastomotic leak; p-chart continues monthly",
+    "dr-rej":"Reminder letter alone: rejected, because the cause is not in the user's control. Reversing the supply without a field action: rejected, because defective stock would stay in use. Market withdrawal: rejected, because other lots perform at the labeled rate",
+    "dr-rat":"The cause lies in the cartridge supply. A surgeon cannot detect a weak spring before firing, so instructions cannot prevent the failure. Scope follows the cause, not the complaints. The device is single use, and surgical teams already watch for a leak after any anastomosis, so no separate patient advisory is needed",
+    "dr-eff":"CAPA: misfire rate below 0.48 per 1,000 units (fewer than 24 a month) for three consecutive months. Recall: full reconciliation of the recalled lots, with written follow-up of any consignee that has not responded. Review at the first board meeting after three consecutive months of data from the reversed supply",
+    "dr-reg":"FSCA reported to the competent authorities before the recall starts; FSN in the Commission template. If any affected lots went to Great Britain, the proposed FSN goes to MHRA before customers. Each notification logged with its date [dates]",
+    "dr-links":"Article 88 trend report [ref]; CAPA [number]; risk-file revision adding anastomotic leak [ref]; returned-device evaluation reports [refs]",
+    "dr-dis":"None recorded [confirm with board minutes]",
+    "dr-st":"open-act",
+    "dr-trg":"Any month above 33.4 (3σ); any misfire with harm not listed in the risk file; any change to a cartridge component supplier",
+    "dr-by":"[Name], post-market review board chair",
+    "dr-date":"[date]"
+  });
+  drRun();
+  $("dr-status").textContent = "Book example loaded: Suturex FSCA decision at Year 4, month 4 (Chapters 19 and 23). This is a fictional case with illustrative numbers. Record generated below; bracketed entries are placeholders.";
+});
+})();
+</script>
+</body>
+</html>
