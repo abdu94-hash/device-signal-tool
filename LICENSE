@@ -1,0 +1,56 @@
+This repository contains two kinds of material under two different licenses.
+
+======================================================================
+PART A - BOOK CONTENT: ALL RIGHTS RESERVED
+======================================================================
+
+Copyright (c) 2026 Selim Medical Press. All rights reserved.
+
+"Signal Management in Medical Device Vigilance" by Dr. Hafez Selim, MD, PhD.
+Selim Medical Press, Medical Device Safety Series, Book 5.
+
+Part A covers the book's text, the case dossiers and fictional case data
+(including Suturex, Glucalyn, Tessora, Kestran, Orvana, Veltrix, Lumora,
+Neoflo and Brevant), figures, tables, explanatory and instructional text,
+and the toolkit files T-1 to T-24 and their zip archive in toolkit/.
+
+No part of this material may be reproduced, distributed, or transmitted in
+any form or by any means without the prior written permission of the
+publisher. Purchasers of the book may download the toolkit files and adapt
+them for internal use within their own organization. They may not
+redistribute or resell the files, in original or modified form.
+
+The material is provided for education. It is not legal or regulatory
+advice. Thresholds, scores, bands, matrices and timelines are illustrative
+examples, not regulatory requirements.
+
+======================================================================
+PART B - WEB TOOL SOURCE CODE: MIT LICENSE
+======================================================================
+
+Part B covers the HTML, CSS and JavaScript source code of tool/index.html
+and index.html (the software). It does not cover the book content from
+Part A that appears in those files as text, such as the module
+descriptions, scoring anchors and book example data.
+
+MIT License
+
+Copyright (c) 2026 Selim Medical Press
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

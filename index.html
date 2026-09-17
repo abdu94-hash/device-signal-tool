@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Device Signal Management Companion</title>
+<meta name="description" content="Companion site for Signal Management in Medical Device Vigilance by Dr. Hafez Selim, MD, PhD (Selim Medical Press, 2026): the 24-file toolkit, its index, and the browser-based web tool.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2317375E'/%3E%3Cpath d='M4 20h6l3-9 4 14 3-9h8' fill='none' stroke='%2367E8F9' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{--navy:#17375E;--navy-2:#0F2744;--teal:#0E7490;--teal-dark:#0B5A70;--teal-tint:#E6F4F7;--ink:#1B2430;--muted:#4A5566;--line:#C9D2DC;--bg:#F3F6F9;--card:#fff;--radius:10px;--gutter:16px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px}
+a{color:var(--teal-dark)}
+a:hover{color:var(--navy)}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-9999px;top:0;background:#fff;color:var(--navy);padding:8px 12px;z-index:10}
+.skip:focus{left:8px;top:8px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 var(--gutter)}
+header.hero{background:linear-gradient(135deg,var(--navy-2),var(--navy) 60%,#15506F);color:#fff;padding:44px 0 40px}
+header.hero :focus-visible{outline-color:#fff}
+.kicker{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:#A5E3EF;margin:0 0 8px}
+header.hero h1{margin:0;font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.15;max-width:22ch}
+.subtitle{font-size:clamp(1.05rem,2.4vw,1.3rem);color:#DCE7F2;margin:10px 0 4px;max-width:46ch}
+.author{color:#fff;font-weight:600;margin:14px 0 22px}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-block;text-decoration:none;font-weight:700;border-radius:8px;padding:11px 18px;border:2px solid transparent}
+.btn.primary{background:#fff;color:var(--navy)}
+.btn.primary:hover{background:var(--teal-tint);color:var(--navy)}
+.btn.ghost{color:#fff;border-color:#9FC3D9}
+.btn.ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+main section{margin:30px 0}
+h2{color:var(--navy);font-size:1.45rem;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.card.accent{border-top:5px solid var(--teal)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.grid .card h3{margin:0 0 6px;color:var(--navy);font-size:1.08rem}
+.grid .card p{margin:0;color:var(--muted)}
+.note{background:#FFF4E5;border:1px solid #F0C98A;border-left:6px solid #B86E00;color:#4A2A00;border-radius:var(--radius);padding:12px 16px}
+ul.mods{margin:8px 0 0;padding-left:20px}
+ul.mods li{margin:3px 0}
+.tablewrap{position:relative;overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{padding:9px 12px;border-bottom:1px solid #E3E8EE;text-align:left;vertical-align:top}
+thead th{background:#EDF2F7;color:var(--navy)}
+tbody th{color:var(--navy);white-space:nowrap}
+td.l{min-width:220px}
+.fn{display:block;font-size:.8rem;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.fmt{display:inline-block;font-size:.75rem;font-weight:700;border-radius:4px;padding:2px 6px}
+.fmt.w{background:#DDE7F3;color:#17375E}
+.fmt.x{background:#D8EFDF;color:#1F5A33}
+.fmt.mob{display:none}
+.zip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}
+.btn.solid{background:var(--teal);color:#fff}
+.btn.solid:hover{background:var(--teal-dark);color:#fff}
+.log dt{font-weight:700;color:var(--navy)}
+.log dd{margin:4px 0 14px 0}
+footer{background:var(--navy-2);color:#DCE7F2;padding:24px 0;margin-top:40px;font-size:.9rem}
+footer a{color:#fff}
+footer :focus-visible{outline-color:#fff}
+@media (max-width:640px){header.hero{padding:30px 0 28px}.card{padding:16px}th,td{padding:8px}td.l{min-width:0}.fcol{display:none}.fmt.mob{display:inline-block}.fn{word-break:break-all}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">Selim Medical Press · Medical Device Safety Series, Book 5</p>
+    <h1>Signal Management in Medical Device Vigilance</h1>
+    <p class="subtitle">From complaints and trends to risk file updates and field safety action</p>
+    <p class="author">Dr. Hafez Selim, MD, PhD</p>
+    <div class="cta">
+      <a class="btn primary" href="./tool/">Open the web tool</a> <a class="btn primary" href="./lab/">Open the Case Lab</a>
+      <a class="btn ghost" href="#toolkit">Browse the toolkit</a>
+    </div>
+  </div>
+</header>
+<main id="main" class="wrap" tabindex="-1">
+  <section aria-labelledby="about-h">
+    <h2 id="about-h">About the book</h2>
+    <div class="card">
+      <p>This book shows how medical device manufacturers turn complaints, returned devices, registry data, clinical follow-up and device-generated data into safety decisions that are timely, based on evidence, and able to withstand audit. It follows the whole signal lifecycle inside the quality system: detection, validation, prioritization, root cause, integrated assessment, risk management file update, field action, communication and closure.</p>
+      <p>It is written for vigilance and post-market surveillance specialists, complaint-handling leads, safety physicians, risk management engineers, quality and CAPA owners, and regulatory affairs staff. Eight fictional device cases run through the chapters. The book is a companion to <em>Signal Management in Pharmacovigilance</em> by the same author.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="site-h">
+    <h2 id="site-h">What this site contains</h2>
+    <div class="grid">
+      <div class="card accent"><h3>1. The toolkit</h3><p>The 24 editable files (T-1 to T-24) cited in the chapters. Download them one at a time or as a single zip file.</p></div>
+      <div class="card accent"><h3>2. The index</h3><p>The table below maps each file to its chapter and purpose.</p></div>
+      <div class="card accent"><h3>4. The Case Lab</h3><p>The whole ten-step signal process in action: the book's eight cases solved step by step with decide-then-reveal questions, plus a workbench that turns your own signal into a printable record. <a href="./lab/">Open the Case Lab</a>.</p></div>
+      <div class="card accent"><h3>3. The web tool</h3><p>Runs in your browser with nothing to install. It sends no data and stores nothing. <a href="./tool/">Open the tool</a>.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="tool-h">
+    <h2 id="tool-h">The web tool</h2>
+    <div class="card">
+      <p style="margin-top:0">Six modules reproduce the book's worked analyses. Each has a "Load book example" button, and every field starts empty.</p>
+      <ul class="mods">
+        <li><strong>Trend screen</strong>: p-chart limits, the 2-of-3 run rule, a standardized CUSUM and an exact binomial check (Chapter 8)</li>
+        <li><strong>Disproportionality and registry O/E</strong>: PRR and ROR with 95% intervals, and O/E with exact Poisson intervals and funnel limits (Chapter 9)</li>
+        <li><strong>Time to failure</strong>: a life table with Kaplan–Meier survival and Greenwood intervals (Chapter 10)</li>
+        <li><strong>Prioritization</strong>: the five-domain scale with bands, the floor rule, urgency triggers and recorded overrides (Chapter 13)</li>
+        <li><strong>Risk-file update</strong>: the illustrative 5×5 matrix, with the region before and after the signal (Chapter 18)</li>
+        <li><strong>Decision record</strong>: a printable record that keeps the conclusion separate from the status (Chapters 19 and 23)</li>
+      </ul>
+      <p><a class="btn solid" href="./tool/">Open the web tool</a> <a class="btn solid" href="./lab/">Open the Case Lab</a></p>
+      <p class="note" style="margin-bottom:0"><strong>Educational use.</strong> Every tool is an example to adapt to your own quality system. Scores, bands, matrices and thresholds are illustrative company designs, not regulatory requirements. The web tool is not validated software, and a record it produces is not a controlled quality record.</p>
+    </div>
+  </section>
+
+  <section id="toolkit" aria-labelledby="tk-h">
+    <h2 id="tk-h">Toolkit index (T-1 to T-24)</h2>
+    <p>T-6, T-7 and T-8 are spreadsheets with live formulas. The other files are Word documents.</p>
+    <div class="zip card">
+      <span><strong>All 24 files in one download</strong><span class="fn">Device_Signal_Toolkit.zip</span></span>
+      <a class="btn solid" href="./toolkit/Device_Signal_Toolkit.zip">Download the zip file</a>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <caption style="text-align:left;padding:10px 12px;color:var(--muted)">Each toolkit file mapped to its chapter and purpose</caption>
+        <thead><tr><th scope="col">ID</th><th scope="col">Tool and file</th><th scope="col">Chapter</th><th scope="col" class="fcol">Format</th></tr></thead>
+        <tbody>
+        <tr><th scope="row">T-1</th><td class="l"><a href="./toolkit/T-01_Device_Signal_SOP_Outline_and_RACI.docx">Device signal-management SOP outline and RACI</a><span class="fn">T-01_Signal_Management_SOP_Outline_and_RACI.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>4</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-2</th><td class="l"><a href="./toolkit/T-02_Data_Source_Inventory.docx">Data-source inventory</a><span class="fn">T-02_Data_Source_Inventory.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>5</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-3</th><td class="l"><a href="./toolkit/T-03_Coding_and_Denominator_Worksheet.docx">Coding and denominator worksheet (IMDRF coding and denominator selection)</a><span class="fn">T-03_Coding_and_Denominator_Worksheet.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>6</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-4</th><td class="l"><a href="./toolkit/T-04_Joint_Clinical_Engineering_Review_Form.docx">Joint clinical–engineering review form</a><span class="fn">T-04_Joint_Clinical_Engineering_Review_Form.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>7</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-5</th><td class="l"><a href="./toolkit/T-05_PMS_Plan_Trend_Methodology_Section.docx">PMS plan trend-methodology section with threshold justification</a><span class="fn">T-05_PMS_Plan_Trend_Methodology_Section.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>8</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-6</th><td class="l"><a href="./toolkit/T-06_Trend_Calculator_pchart_CUSUM.xlsx">Trend calculator: p-chart and CUSUM</a><span class="fn">T-06_Trend_Calculator_pChart_CUSUM.xlsx <span class="fmt x mob" aria-hidden="true">XLSX</span></span></td><td>8</td><td class="fcol"><span class="fmt x">XLSX</span></td></tr>
+        <tr><th scope="row">T-7</th><td class="l"><a href="./toolkit/T-07_Disproportionality_and_Registry_OE_Calculator.xlsx">Disproportionality and registry O/E calculator</a><span class="fn">T-07_Disproportionality_and_Registry_OE_Calculator.xlsx <span class="fmt x mob" aria-hidden="true">XLSX</span></span></td><td>9</td><td class="fcol"><span class="fmt x">XLSX</span></td></tr>
+        <tr><th scope="row">T-8</th><td class="l"><a href="./toolkit/T-08_Time_to_Failure_Plan_and_Kaplan_Meier.xlsx">Time-to-failure analysis plan and Kaplan–Meier template</a><span class="fn">T-08_Time_to_Failure_Plan_and_KM_Template.xlsx <span class="fmt x mob" aria-hidden="true">XLSX</span></span></td><td>10</td><td class="fcol"><span class="fmt x">XLSX</span></td></tr>
+        <tr><th scope="row">T-9</th><td class="l"><a href="./toolkit/T-09_Special_Situation_Checklist_and_AI_Monitoring_Plan.docx">Special-situation checklist and AI performance-monitoring plan</a><span class="fn">T-09_Special_Situations_and_AI_Monitoring_Plan.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>11</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-10</th><td class="l"><a href="./toolkit/T-10_Validation_Memo.docx">Validation memo</a><span class="fn">T-10_Validation_Memo.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>12</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-11</th><td class="l"><a href="./toolkit/T-11_Prioritization_Matrix_ISO14971.docx">Prioritization matrix aligned with ISO 14971</a><span class="fn">T-11_Prioritization_Matrix_ISO14971.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>13</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-12</th><td class="l"><a href="./toolkit/T-12_Signal_Assessment_Protocol.docx">Signal assessment protocol</a><span class="fn">T-12_Signal_Assessment_Protocol.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>14</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-13</th><td class="l"><a href="./toolkit/T-13_Event_Adjudication_Guide_and_Line_Listing.docx">Event adjudication guide and line-listing template</a><span class="fn">T-13_Event_Adjudication_Guide_and_Line_Listing.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>15</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-14</th><td class="l"><a href="./toolkit/T-14_Root_Cause_and_Human_Factors_Checklist.docx">Root-cause investigation and human-factors checklist</a><span class="fn">T-14_Root_Cause_and_Human_Factors_Checklist.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>16</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-15</th><td class="l"><a href="./toolkit/T-15_Totality_of_Evidence_and_Device_Causality.docx">Totality-of-evidence and device-causality template</a><span class="fn">T-15_Totality_of_Evidence_and_Device_Causality.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>17</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-16</th><td class="l"><a href="./toolkit/T-16_Risk_Management_File_Update_Worksheet.docx">Risk management file update worksheet</a><span class="fn">T-16_Risk_File_Update_Worksheet.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>18</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-17</th><td class="l"><a href="./toolkit/T-17_Action_Selection_Matrix_and_FSCA_Decision_Record.docx">Action-selection matrix and FSCA decision record</a><span class="fn">T-17_Action_Selection_Matrix_and_FSCA_Decision_Record.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>19</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-18</th><td class="l"><a href="./toolkit/T-18_Device_Benefit_Risk_Worksheet.docx">Device benefit–risk worksheet</a><span class="fn">T-18_Device_Benefit_Risk_Worksheet.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>20</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-19</th><td class="l"><a href="./toolkit/T-19_Field_Safety_Notice_Checklist.docx">Field safety notice checklist</a><span class="fn">T-19_Field_Safety_Notice_Checklist.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>21</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-20</th><td class="l"><a href="./toolkit/T-20_Review_Board_Charter_Agenda_Decision_Request_Minutes.docx">Post-market review board charter, agenda, decision request and minutes</a><span class="fn">T-20_Review_Board_Charter_Agenda_Decision_Request_Minutes.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>22</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-21</th><td class="l"><a href="./toolkit/T-21_Signal_Record_Closure_Memo_Reopening_Review.docx">Signal record, closure memo and reopening review templates</a><span class="fn">T-21_Signal_Record_Closure_Memo_Reopening_Review.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>23</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-22</th><td class="l"><a href="./toolkit/T-22_Cross_Document_Reconciliation_Checklist.docx">Cross-document reconciliation checklist</a><span class="fn">T-22_Cross_Document_Reconciliation_Checklist.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>24</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-23</th><td class="l"><a href="./toolkit/T-23_Audit_and_Inspection_Readiness_Checklist.docx">Audit and inspection readiness checklist</a><span class="fn">T-23_Audit_and_Inspection_Readiness_Checklist.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>25</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        <tr><th scope="row">T-24</th><td class="l"><a href="./toolkit/T-24_KPI_Dictionary_and_AI_Use_Case_Validation_Checklist.docx">KPI dictionary and AI use-case validation checklist</a><span class="fn">T-24_KPI_Dictionary_and_AI_Validation_Checklist.docx <span class="fmt w mob" aria-hidden="true">DOCX</span></span></td><td>26, 27</td><td class="fcol"><span class="fmt w">DOCX</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="use-h">
+    <h2 id="use-h">Using the files</h2>
+    <div class="card">
+      <p style="margin-top:0">Each file is a starting point. Before you use one in production, bring it under your document control, replace the example thresholds and scales with the values in your own PMS plan and risk management file, and validate any spreadsheet you rely on for decisions. All case names in the book and the files (Suturex, Glucalyn, Tessora, Kestran, Orvana, Veltrix, Lumora, Neoflo and Brevant) are fictional composites. Their numbers are illustrative.</p>
+      <p style="margin-bottom:0">Regulatory statements in the book reflect the law as of September 2026. Check current texts before relying on them.</p>
+    </div>
+  </section>
+
+  <section id="changelog" aria-labelledby="log-h">
+    <h2 id="log-h">Change log</h2>
+    <div class="card">
+      <dl class="log" style="margin:0">
+        <dt>Version 1.0.0 (16 September 2026)</dt>
+        <dd>First release. Web tool with six modules: trend screen, disproportionality and registry O/E, time to failure, prioritization, risk-file update and decision record. Toolkit index for T-1 to T-24, with a zip download.</dd>
+      </dl>
+      <p style="margin-bottom:0">The <a href="https://github.com/abdu94-hash/device-signal-tool/blob/main/CHANGELOG.md">full change log</a> is in the repository.</p>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <p>© 2026 Selim Medical Press. <em>Signal Management in Medical Device Vigilance</em> by Dr. Hafez Selim, MD, PhD. The book text, cases, figures and toolkit content are all rights reserved. The web tool's source code is released under the MIT License. See <a href="https://github.com/abdu94-hash/device-signal-tool/blob/main/LICENSE">LICENSE</a>.</p>
+    <p style="margin-bottom:0">This site uses no cookies, analytics or external resources.</p>
+  </div>
+</footer>
+</body>
+</html>
